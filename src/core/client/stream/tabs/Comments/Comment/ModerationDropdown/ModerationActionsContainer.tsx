@@ -13,7 +13,13 @@ import {
 import { GQLSTORY_MODE } from "coral-framework/schema";
 import CLASSES from "coral-stream/classes";
 import { GotoModerationEvent } from "coral-stream/events";
-import { DropdownButton, DropdownDivider, Icon } from "coral-ui/components/v2";
+import {
+  CheckIcon,
+  RatingStarIcon,
+  RemoveIcon,
+  SvgIcon,
+} from "coral-ui/components/icons";
+import { DropdownButton, DropdownDivider } from "coral-ui/components/v2";
 
 import { ModerationActionsContainer_comment } from "coral-stream/__generated__/ModerationActionsContainer_comment.graphql";
 import { ModerationActionsContainer_local } from "coral-stream/__generated__/ModerationActionsContainer_local.graphql";
@@ -22,6 +28,7 @@ import { ModerationActionsContainer_story } from "coral-stream/__generated__/Mod
 import { ModerationActionsContainer_viewer } from "coral-stream/__generated__/ModerationActionsContainer_viewer.graphql";
 
 import ApproveCommentMutation from "./ApproveCommentMutation";
+import CopyCommentEmbedCodeContainer from "./CopyCommentEmbedCodeContainer";
 import FeatureCommentMutation from "./FeatureCommentMutation";
 import ModerationActionBanQuery from "./ModerationActionBanQuery";
 import RejectCommentMutation from "./RejectCommentMutation";
@@ -137,15 +144,19 @@ const ModerationActionsContainer: FunctionComponent<Props> = ({
       : comment.author.id !== viewer.id;
   const isQA = story.settings.mode === GQLSTORY_MODE.QA;
 
+  const showCopyCommentEmbed = !!comment.body;
+
   return (
     <>
       {featured ? (
         <Localized id="comments-moderationDropdown-unfeature">
           <DropdownButton
             icon={
-              <Icon className={styles.featured} size="md">
-                star
-              </Icon>
+              <SvgIcon
+                className={styles.featured}
+                filled
+                Icon={RatingStarIcon}
+              />
             }
             className={cn(CLASSES.moderationDropdown.unfeatureButton)}
             classes={{
@@ -166,7 +177,7 @@ const ModerationActionsContainer: FunctionComponent<Props> = ({
               root: styles.label,
               mouseHover: styles.mouseHover,
             }}
-            icon={<Icon size="md">star_border</Icon>}
+            icon={<SvgIcon Icon={RatingStarIcon} />}
             onClick={onFeature}
             disabled={isQA}
           >
@@ -178,12 +189,10 @@ const ModerationActionsContainer: FunctionComponent<Props> = ({
         <Localized id="comments-moderationDropdown-approved">
           <DropdownButton
             icon={
-              <Icon
+              <SvgIcon
                 className={cn(styles.approveIcon, styles.approved)}
-                size="md"
-              >
-                check
-              </Icon>
+                Icon={CheckIcon}
+              />
             }
             className={cn(CLASSES.moderationDropdown.approvedButton)}
             classes={{
@@ -203,11 +212,7 @@ const ModerationActionsContainer: FunctionComponent<Props> = ({
               root: styles.label,
               mouseHover: styles.mouseHover,
             }}
-            icon={
-              <Icon size="md" className={styles.approveIcon}>
-                check
-              </Icon>
-            }
+            icon={<SvgIcon Icon={CheckIcon} className={styles.approveIcon} />}
             onClick={onApprove}
           >
             Approve
@@ -218,12 +223,10 @@ const ModerationActionsContainer: FunctionComponent<Props> = ({
         <Localized id="comments-moderationDropdown-rejected">
           <DropdownButton
             icon={
-              <Icon
+              <SvgIcon
+                Icon={RemoveIcon}
                 className={cn(styles.rejectIcon, styles.rejected)}
-                size="md"
-              >
-                close
-              </Icon>
+              />
             }
             className={cn(
               styles.label,
@@ -241,11 +244,7 @@ const ModerationActionsContainer: FunctionComponent<Props> = ({
       ) : (
         <Localized id="comments-moderationDropdown-reject">
           <DropdownButton
-            icon={
-              <Icon size="md" className={styles.rejectIcon}>
-                close
-              </Icon>
-            }
+            icon={<SvgIcon Icon={RemoveIcon} className={styles.rejectIcon} />}
             onClick={onReject}
             className={cn(
               styles.label,
@@ -301,6 +300,13 @@ const ModerationActionsContainer: FunctionComponent<Props> = ({
           Moderate story
         </DropdownButton>
       </Localized>
+      {showCopyCommentEmbed && (
+        <CopyCommentEmbedCodeContainer
+          comment={comment}
+          settings={settings}
+          story={story}
+        />
+      )}
     </>
   );
 };
@@ -312,6 +318,7 @@ const enhanced = withFragmentContainer<Props>({
       author {
         id
       }
+      body
       revision {
         id
       }
@@ -319,6 +326,7 @@ const enhanced = withFragmentContainer<Props>({
       tags {
         code
       }
+      ...CopyCommentEmbedCodeContainer_comment
     }
   `,
   settings: graphql`
@@ -333,6 +341,7 @@ const enhanced = withFragmentContainer<Props>({
           }
         }
       }
+      ...CopyCommentEmbedCodeContainer_settings
     }
   `,
   story: graphql`
@@ -341,6 +350,7 @@ const enhanced = withFragmentContainer<Props>({
       settings {
         mode
       }
+      ...CopyCommentEmbedCodeContainer_story
     }
   `,
   viewer: graphql`

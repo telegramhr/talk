@@ -53,4 +53,20 @@ export const Settings: GQLSettingsTypeResolver<Tenant> = {
 
     return deprecated;
   },
+  embeddedComments: (
+    { embeddedComments = { allowReplies: true } },
+    args,
+    ctx
+  ) => embeddedComments,
+  flairBadges: ({
+    flairBadges = { flairBadgesEnabled: false, badges: [] },
+  }) => {
+    if (!flairBadges.badges) {
+      return {
+        flairBadgesEnabled: flairBadges.flairBadgesEnabled ?? false,
+        badges: [],
+      };
+    }
+    return flairBadges;
+  },
 };

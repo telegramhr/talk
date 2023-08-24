@@ -1669,6 +1669,13 @@ type CommenterAccountFeatures {
 }
 
 """
+EmbeddedCommentsConfiguration specifies the configuration for embedded comments.
+"""
+type EmbeddedCommentsConfiguration {
+  allowReplies: Boolean
+}
+
+"""
 BadgeConfiguration specifies the configuration for the staff badges assigned to
 users with any role above COMMENTER.
 """
@@ -1697,6 +1704,21 @@ type BadgeConfiguration {
   adminLabel is the string used when displaying the ADMIN badge to users
   """
   adminLabel: String!
+}
+
+"""
+FlairBadgeConfiguration specifies the configuration for flair badges, including
+whether they are enabled and any configured image urls.
+"""
+
+type FlairBadge {
+  name: String!
+  url: String!
+}
+
+type FlairBadgeConfiguration {
+  flairBadgesEnabled: Boolean
+  badges: [FlairBadge!]!
 }
 
 type WebhookDelivery {
@@ -2080,6 +2102,11 @@ type Settings @cacheControl(maxAge: 30) {
   reaction: ReactionConfiguration!
 
   """
+  featuredBy specifies whether or not to display 'Featured by' for featured comments
+  """
+  featuredBy: Boolean
+
+  """
   staff specifies the configuration for the user badges assigned to users with
   any role above COMMENTER
   """
@@ -2184,6 +2211,17 @@ type Settings @cacheControl(maxAge: 30) {
   external profile.
   """
   externalProfileURL: String
+
+  """
+  embeddedComments includes the configuration for embedded comments.
+  """
+  embeddedComments: EmbeddedCommentsConfiguration
+
+  """
+  flairBadges specifies the configuration for flair badges, including whether
+  they are enabled and any configured image urls
+  """
+  flairBadges: FlairBadgeConfiguration
 }
 
 ################################################################################
@@ -3582,7 +3620,7 @@ type Tag {
   createdBy is the User that assigned the Tag. This is null when the Tag is
   assigned by the System.
   """
-  createdBy: User @auth(roles: [MODERATOR, ADMIN])
+  createdBy: User
 
   """
   createdAt is the time that the Tag was assigned on.
@@ -3831,6 +3869,11 @@ type Comment @cacheControl(maxAge: 5) {
   seen determines whether a comment has been seen by the user already.
   """
   seen: Boolean
+
+  """
+  embeddedAt is the date at which the comment was first embedded.
+  """
+  embeddedAt: Time
 }
 
 type PageInfo {
@@ -5521,6 +5564,13 @@ input NewCommentersConfigurationInput {
 }
 
 """
+EmbeddedCommentsConfigurationInput specifies the configuration for comment embeds.
+"""
+input EmbeddedCommentsConfigurationInput {
+  allowReplies: Boolean
+}
+
+"""
 RTEConfigurationInput specifies the configuration for the rte.
 """
 input RTEConfigurationInput {
@@ -5537,6 +5587,15 @@ input RTEConfigurationInput {
   spoiler when true turns on the spoiler feature.
   """
   spoiler: Boolean!
+}
+
+"""
+FlairBadgeConfigurationInput specifies the configuration for flair badges,
+including whether they are enabled and their image urls.
+"""
+input FlairBadgeConfigurationInput {
+  flairBadgesEnabled: Boolean
+  flairBadgeURLs: [String!]
 }
 
 """
@@ -5650,6 +5709,11 @@ input SettingsInput {
   reaction: ReactionConfigurationInput
 
   """
+  featuredBy specifies whether or not the "Featured by" featured is enabled
+  """
+  featuredBy: Boolean
+
+  """
   badges specifies the configuration for user badges assigned to users with
   any role above COMMENTER.
   """
@@ -5727,6 +5791,17 @@ input SettingsInput {
   external profile.
   """
   externalProfileURL: String
+
+  """
+  embeddedComments includes the configuration for embedded comments.
+  """
+  embeddedComments: EmbeddedCommentsConfigurationInput
+
+  """
+  flairBadges specifies the configuration for flair badges, including whether
+  they are enabled and any configured image urls
+  """
+  flairBadges: FlairBadgeConfigurationInput
 }
 
 """
@@ -8479,6 +8554,66 @@ type UpdateStoryModePayload {
   story: Story!
 }
 
+#########################
+## createFlairBadge
+#########################
+
+input CreateFlairBadgeInput {
+  """
+  clientMutationId is required for Relay support.
+  """
+  clientMutationId: String!
+
+  """
+  name is the name of the flair badge to be created
+  """
+  name: String!
+
+  """
+  url is the url of the flair badge to be created
+  """
+  url: String!
+}
+
+type CreateFlairBadgePayload {
+  """
+  clientMutationId is required for Relay support.
+  """
+  clientMutationId: String!
+
+  """
+  settings is the Settings that the flair badge configuration was created on.
+  """
+  settings: Settings!
+}
+
+#########################
+## deleteFlairBadge
+#########################
+input DeleteFlairBadgeInput {
+  """
+  clientMutationId is required for Relay support.
+  """
+  clientMutationId: String!
+
+  """
+  name is the name of the flair badge to be deleted
+  """
+  name: String!
+}
+
+type DeleteFlairBadgePayload {
+  """
+  clientMutationId is required for Relay support.
+  """
+  clientMutationId: String!
+
+  """
+  settings is the Settings that the flair badge configuration was deleted on.
+  """
+  settings: Settings!
+}
+
 ##################
 ## createEmailDomain
 ##################
@@ -9413,6 +9548,18 @@ type Mutation {
   createSite(input: CreateSiteInput!): CreateSitePayload! @auth(roles: [ADMIN])
 
   updateSite(input: UpdateSiteInput!): UpdateSitePayload! @auth(roles: [ADMIN])
+
+  """
+  createFlairBadge creates a custom flair badge url.
+  """
+  createFlairBadge(input: CreateFlairBadgeInput!): CreateFlairBadgePayload!
+    @auth(roles: [ADMIN])
+
+  """
+  deleteFlairBadge removes a custom flair badge url.
+  """
+  deleteFlairBadge(input: DeleteFlairBadgeInput!): DeleteFlairBadgePayload!
+    @auth(roles: [ADMIN])
 
   """
   createEmailDomain creates an email domain configuration.

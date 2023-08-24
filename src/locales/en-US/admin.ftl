@@ -214,7 +214,7 @@ configure-moderationPhases-noExternalModerationPhases =
   There are no external moderation phases configured, add one above.
 configure-moderationPhases-enabledModerationPhase = Enabled
 configure-moderationPhases-disableModerationPhase = Disabled
-configure-moderationPhases-detailsButton = Details <icon>keyboard_arrow_right</icon>
+configure-moderationPhases-detailsButton = Details <icon></icon>
 configure-moderationPhases-addExternalModerationPhase = Add external moderation phase
 configure-moderationPhases-updateExternalModerationPhaseButton = Update details
 configure-moderationPhases-cancelButton = Cancel
@@ -384,7 +384,7 @@ configure-webhooks-expiresOldSecretHoursFromNow =
     [1] 1 hour
     *[other] { $hours } hours
   }  from now
-configure-webhooks-detailsButton = Details <icon>keyboard_arrow_right</icon>
+configure-webhooks-detailsButton = Details <icon></icon>
 
 ### General
 configure-general-guidelines-title = Community guidelines summary
@@ -502,6 +502,31 @@ configure-general-flattenReplies-enabled = Flatten replies enabled
 configure-general-flattenReplies-explanation =
   Change how levels of replies display. When enabled, replies to comments can go up to seven levels deep before they are no longer indented on the page. When disabled, after a depth of seven replies, the rest of the conversation is displayed in a dedicated view away from the other comments.
 
+configure-general-featuredBy-title = Featured by
+configure-general-featuredBy-enabled = Featured by enabled
+configure-general-featuredBy-explanation = Add moderator name to featured comment display
+
+configure-general-flairBadge-header = Custom flair badges
+configure-general-flairBadge-description = Encourage user engagement and participation by adding custom flair
+  badges for your site. Badges can be allocated as part of your <externalLink>JWT claim</externalLink>.
+configure-general-flairBadge-enable-label = Enable custom flair badges
+configure-general-flairBadge-add = Flair URL
+configure-general-flairBadge-add-helperText =
+  Paste the web address for your custom flair badge. Supported file types: png, jpeg, jpg, and gif
+configure-general-flairBadge-url-error =
+  The URL is invalid or has an unsupported file type.
+configure-general-flairBadge-add-name = Flair name
+configure-general-flairBadge-add-name-helperText =
+  Name the flair with a descriptive identifier
+configure-general-flairBadge-name-permittedCharacters =
+  Only letters, numbers, and the special characters - . are permitted.
+configure-general-flairBadge-add-button = Add
+configure-general-flairBadge-table-flairName = Name
+configure-general-flairBadge-table-flairURL = URL
+configure-general-flairBadge-table-preview = Preview
+configure-general-flairBadge-table-deleteButton = <icon></icon> Delete
+configure-general-flairBadge-table-empty = No custom flair added for this site
+
 #### Closed Stream Message
 configure-general-closedStreamMessage-title = Closed comment stream message
 configure-general-closedStreamMessage-explanation = Write a message to appear when a story is closed for commenting.
@@ -513,7 +538,7 @@ configure-organization-nameExplanation =
   Your organization name will appear on emails sent by { -product-name } to your community and organization members.
 configure-organization-sites-explanation =
   Add a new site to your organization or edit an existing site's details.
-configure-organization-sites-add-site = <icon>add</icon> Add site
+configure-organization-sites-add-site = <icon></icon> Add site
 configure-organization-email = Organization email
 configure-organization-emailExplanation =
   This email address will be used as in emails and across the platform
@@ -525,7 +550,7 @@ configure-organization-urlExplanation =
   Your organization url will appear on emails sent by { -product-name } to your community and organization members.
 
 ### Sites
-configure-sites-site-details = Details <icon>keyboard_arrow_right</icon>
+configure-sites-site-details = Details <icon></icon>
 configure-sites-add-new-site = Add a new site to { $site }
 configure-sites-add-success = { $site } has been added to { $org }
 configure-sites-edit-success = Changes to { $site } have been saved.
@@ -537,7 +562,7 @@ configure-sites-site-form-email = Site email address
 configure-sites-site-form-url-explanation = This email address is for community members to contact you with questions or if they need help. e.g. comments@yoursite.com
 configure-sites-site-form-domains = Site permitted domains
 configure-sites-site-form-domains-explanation = Domains where your Coral comment streams are allowed to be embedded (ex. http://localhost:3000, https://staging.domain.com, https://domain.com).
-configure-sites-site-form-submit = <icon>add</icon> Add site
+configure-sites-site-form-submit = <icon></icon> Add site
 configure-sites-site-form-cancel = Cancel
 configure-sites-site-form-save = Save changes
 configure-sites-site-edit = Edit { $site } details
@@ -832,11 +857,11 @@ configure-moderation-emailDomains-header = Email domain
 configure-moderation-emailDomains-description = Create rules to take action on accounts or comments based on the account holder's email address domain. Action only applies to newly created accounts.
 configure-moderation-emailDomains-add = Add email domain
 configure-moderation-emailDomains-edit = Edit email domain
-configure-moderation-emailDomains-addDomain = <icon>add</icon> Add domain
+configure-moderation-emailDomains-addDomain = <icon></icon> Add domain
 configure-moderation-emailDomains-table-domain = Domain
 configure-moderation-emailDomains-table-action = Action
-configure-moderation-emailDomains-table-edit = <icon>edit</icon> Edit
-configure-moderation-emailDomains-table-delete = <icon>delete</icon> Delete
+configure-moderation-emailDomains-table-edit = <icon></icon> Edit
+configure-moderation-emailDomains-table-delete = <icon></icon> Delete
 configure-moderation-emailDomains-form-label-domain = Domain
 configure-moderation-emailDomains-form-label-moderationAction = Moderation action
 configure-moderation-emailDomains-banAllUsers = Ban all new commenter accounts
@@ -879,6 +904,12 @@ configure-advanced-customCSS-fontsStylesheetURL = Custom CSS Stylesheet URL for 
 configure-advanced-customCSS-containsFontFace =
   URL to a custom CSS stylesheet that contains all @font-face
   definitions needed by above stylesheet.
+
+configure-advanced-embeddedCommentReplies = Embedded comment replies
+configure-advanced-embeddedCommentReplies-explanation = When enabled, a reply button
+  will appear with each embedded comment to encourage additional discussion on that
+  specific comment or story.
+configure-advanced-embeddedCommentReplies-label = Allow replies to embedded comments
 
 configure-advanced-permittedDomains = Permitted domains
 configure-advanced-permittedDomains-description =
@@ -1110,7 +1141,7 @@ moderate-user-drawer-username-not-available = Username not available
 moderate-user-drawer-username-not-available-tooltip-title = Username not available
 moderate-user-drawer-username-not-available-tooltip-body = User did not complete account setup process
 
-moderate-user-drawer-account-history-system = <icon>computer</icon> System
+moderate-user-drawer-account-history-system = <icon></icon> System
 moderate-user-drawer-account-history-suspension-ended = Suspension ended
 moderate-user-drawer-account-history-suspension-removed = Suspension removed
 moderate-user-drawer-account-history-banned = Banned
@@ -1322,7 +1353,8 @@ community-userStatus-premodUser = Always pre-moderate
 community-userStatus-removePremod = Remove pre-moderate
 
 community-banModal-allSites-title = Are you sure you want to ban <username></username>?
-community-banModal-banEmailDomain = Ban all new accounts on { $domain }
+community-banModal-banEmailDomain-title = Email domain ban
+community-banModal-banEmailDomain = Ban all new commenter accounts from { $domain }
 community-banModal-specificSites-title = Are you sure you want to manage the ban status of <username></username>?
 community-banModal-noSites-title = Are you sure you want to unban <username></username>?
 community-banModal-allSites-consequence =
@@ -1759,6 +1791,10 @@ conversation-modal-commentNotFound = Comment not found.
 conversation-modal-showMoreReplies = Show more replies
 conversation-modal-header-title = Conversation on:
 conversation-modal-header-moderate-link = Moderate story
+conversation-modal-rejectButton = <icon></icon>Reject
+  .aria-label = Reject
+conversation-modal-rejectButton-rejected = <icon></icon>Rejected
+  .aria-label = Rejected
 
 # Control panel
 

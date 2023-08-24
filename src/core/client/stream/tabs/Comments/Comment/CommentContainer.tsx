@@ -37,12 +37,12 @@ import {
   ViewConversationEvent,
 } from "coral-stream/events";
 import { SetCommentIDMutation } from "coral-stream/mutations";
+import { PencilIcon, SvgIcon } from "coral-ui/components/icons";
 import {
   Button,
   Flex,
   Hidden,
   HorizontalGutter,
-  Icon,
   RelativeTime,
 } from "coral-ui/components/v2";
 import MatchMedia from "coral-ui/components/v2/MatchMedia";
@@ -57,7 +57,7 @@ import { useCommentSeenEnabled } from "../commentSeen";
 import { isPublished } from "../helpers";
 import AnsweredTag from "./AnsweredTag";
 import { ArchivedReportFlowContainer } from "./ArchivedReportFlow";
-import AuthorBadges from "./AuthorBadges";
+import AuthorBadgesContainer from "./AuthorBadgesContainer";
 import ButtonsBar from "./ButtonsBar";
 import computeCommentElementID from "./computeCommentElementID";
 import EditCommentFormContainer from "./EditCommentForm";
@@ -399,6 +399,8 @@ export const CommentContainer: FunctionComponent<Props> = ({
       <ModerationRejectedTombstoneContainer
         comment={comment}
         settings={settings}
+        story={story}
+        viewer={viewer!}
       />
     );
   }
@@ -545,9 +547,10 @@ export const CommentContainer: FunctionComponent<Props> = ({
                   settings={settings}
                 />
                 {badges && (
-                  <AuthorBadges
+                  <AuthorBadgesContainer
                     className={CLASSES.comment.topBar.userBadge}
                     badges={badges}
+                    settings={settings}
                   />
                 )}
               </Flex>
@@ -581,9 +584,10 @@ export const CommentContainer: FunctionComponent<Props> = ({
           badges={
             comment.author &&
             badges && (
-              <AuthorBadges
+              <AuthorBadgesContainer
                 className={CLASSES.comment.topBar.userBadge}
                 badges={badges}
+                settings={settings}
               />
             )
           }
@@ -611,7 +615,10 @@ export const CommentContainer: FunctionComponent<Props> = ({
                           data-testid="comment-edit-button"
                         >
                           <Flex alignItems="center" justifyContent="center">
-                            <Icon className={styles.editIcon}>edit</Icon>
+                            <SvgIcon
+                              Icon={PencilIcon}
+                              className={styles.editIcon}
+                            />
                             <Localized id="comments-commentContainer-editButton">
                               Edit
                             </Localized>
@@ -805,6 +812,7 @@ const enhanced = withShowAuthPopupMutation(
         ...ReportFlowContainer_viewer
         ...ReportButton_viewer
         ...CaretContainer_viewer
+        ...ModerationRejectedTombstoneContainer_viewer
       }
     `,
     story: graphql`
@@ -826,6 +834,7 @@ const enhanced = withShowAuthPopupMutation(
         ...PermalinkButtonContainer_story
         ...ReplyCommentFormContainer_story
         ...UserTagsContainer_story
+        ...ModerationRejectedTombstoneContainer_story
       }
     `,
     comment: graphql`
@@ -903,6 +912,7 @@ const enhanced = withShowAuthPopupMutation(
         ...UsernameWithPopoverContainer_settings
         ...UserTagsContainer_settings
         ...ArchivedReportFlowContainer_settings
+        ...AuthorBadgesContainer_settings
       }
     `,
   })(CommentContainer)

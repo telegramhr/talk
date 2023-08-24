@@ -7,18 +7,22 @@ import { getURLWithCommentID } from "coral-framework/helpers";
 import { useViewerEvent } from "coral-framework/lib/events";
 import { useMutation } from "coral-framework/lib/relay";
 import withFragmentContainer from "coral-framework/lib/relay/withFragmentContainer";
-import { GQLSTORY_MODE, GQLUSER_STATUS } from "coral-framework/schema";
+import { GQLSTORY_MODE, GQLTAG, GQLUSER_STATUS } from "coral-framework/schema";
 import CLASSES from "coral-stream/classes";
 import HTMLContent from "coral-stream/common/HTMLContent";
 import Timestamp from "coral-stream/common/Timestamp";
 import { ViewConversationEvent } from "coral-stream/events";
 import { SetCommentIDMutation } from "coral-stream/mutations";
 import {
+  CommentBoxIcon,
+  ConversationChatIcon,
+  SvgIcon,
+} from "coral-ui/components/icons";
+import {
   Box,
   Flex,
   Hidden,
   HorizontalGutter,
-  Icon,
   RelativeTime,
 } from "coral-ui/components/v2";
 import { Button, StarRating } from "coral-ui/components/v3";
@@ -33,6 +37,8 @@ import MediaSectionContainer from "../../Comment/MediaSection";
 import ReactionButtonContainer from "../../Comment/ReactionButton";
 import { UsernameWithPopoverContainer } from "../../Comment/Username";
 import IgnoredTombstoneOrHideContainer from "../../IgnoredTombstoneOrHideContainer";
+
+import FeaturedBy from "./FeaturedBy";
 
 import styles from "./FeaturedCommentContainer.css";
 
@@ -72,6 +78,10 @@ const FeaturedCommentContainer: FunctionComponent<Props> = (props) => {
     [emitViewConversationEvent, comment.id, setCommentID]
   );
 
+  const featuringUser = comment.tags.find(
+    (tag) => tag.code === GQLTAG.FEATURED
+  )?.createdBy;
+
   const gotoConvAriaLabelId = comment.author?.username
     ? "comments-featured-gotoConversation-label-with-username"
     : "comments-featured-gotoConversation-label-without-username";
@@ -94,6 +104,9 @@ const FeaturedCommentContainer: FunctionComponent<Props> = (props) => {
           </Hidden>
         </Localized>
         <HorizontalGutter>
+          {settings.featuredBy && featuringUser?.username && (
+            <FeaturedBy username={featuringUser.username} />
+          )}
           {isRatingsAndReviews && comment.rating && (
             <StarRating rating={comment.rating} />
           )}
@@ -165,7 +178,7 @@ const FeaturedCommentContainer: FunctionComponent<Props> = (props) => {
                   CLASSES.featuredComment.actionBar.replies
                 )}
               >
-                <Icon size="sm">comment</Icon>
+                <SvgIcon Icon={CommentBoxIcon} />
                 <Localized id="comments-featured-replies">
                   <Box mx={1}>Replies</Box>
                 </Localized>
@@ -190,9 +203,10 @@ const FeaturedCommentContainer: FunctionComponent<Props> = (props) => {
                   onClick={onGotoConversation}
                   href={getURLWithCommentID(story.url, comment.id)}
                 >
-                  <Icon size="sm" className={styles.icon}>
-                    forum
-                  </Icon>
+                  <SvgIcon
+                    Icon={ConversationChatIcon}
+                    className={styles.icon}
+                  />
                   <Localized id="comments-featured-gotoConversation">
                     <span>Go to conversation</span>
                   </Localized>
@@ -253,6 +267,12 @@ const enhanced = withFragmentContainer<Props>({
           username
         }
       }
+      tags {
+        code
+        createdBy {
+          username
+        }
+      }
       rating
       body
       createdAt
@@ -267,6 +287,7 @@ const enhanced = withFragmentContainer<Props>({
   `,
   settings: graphql`
     fragment FeaturedCommentContainer_settings on Settings {
+      featuredBy
       ...ReactionButtonContainer_settings
       ...UserTagsContainer_settings
       ...MediaSectionContainer_settings

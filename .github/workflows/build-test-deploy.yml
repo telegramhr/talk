@@ -34,7 +34,7 @@ jobs:
         id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
-          credentials_json: '${{ secrets.GCR_JSON_KEY }}'
+          credentials_json: '${{ secrets.GAR_JSON_KEY }}'
       -
         name: Set up Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v1'
@@ -101,6 +101,8 @@ jobs:
         run: npm run test:client:other -- --ci --runInBand --reporters=default --reporters=jest-junit
       -
         name: Build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
         run: npm run build
       -
         name: Verify Bundle Size

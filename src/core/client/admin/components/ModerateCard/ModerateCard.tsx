@@ -1,5 +1,7 @@
 import { Localized } from "@fluent/react/compat";
 import cn from "classnames";
+import key from "keymaster";
+import { noop } from "lodash";
 import React, {
   FunctionComponent,
   useCallback,
@@ -9,15 +11,20 @@ import React, {
 } from "react";
 
 import { MediaContainer } from "coral-admin/components/MediaContainer";
+import { HOTKEYS } from "coral-admin/constants";
 import { GQLWordlistMatch } from "coral-framework/schema";
 import { PropTypesOf } from "coral-framework/types";
 import {
+  ArrowRightIcon,
+  ButtonSvgIcon,
+  ConversationChatTextIcon,
+  SvgIcon,
+} from "coral-ui/components/icons";
+import {
   Button,
-  ButtonIcon,
   Card,
   Flex,
   HorizontalGutter,
-  Icon,
   TextLink,
   Timestamp,
 } from "coral-ui/components/v2";
@@ -134,6 +141,33 @@ const ModerateCard: FunctionComponent<Props> = ({
   const div = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (selected) {
+      key.setScope(id);
+    }
+  }, [selected, id]);
+
+  useEffect(() => {
+    if (selectNext) {
+      key(HOTKEYS.NEXT, id, selectNext);
+    }
+    if (selectPrev) {
+      key(HOTKEYS.PREV, id, selectPrev);
+    }
+    if (onBan) {
+      key(HOTKEYS.BAN, id, onBan);
+    }
+    key(HOTKEYS.APPROVE, id, onApprove);
+    key(HOTKEYS.REJECT, id, onReject);
+
+    return () => {
+      // Remove all events that are set in the ${id} scope.
+      key.deleteScope(id);
+    };
+
+    return noop;
+  }, [id, selectNext, selectPrev, onBan, onApprove, onReject]);
+
+  useEffect(() => {
     if (selected && div && div.current) {
       div.current.focus();
     }
@@ -233,7 +267,7 @@ const ModerateCard: FunctionComponent<Props> = ({
             {onConversationClick && (
               <div className={styles.viewContext}>
                 <Button iconLeft variant="text" onClick={onConversationClick}>
-                  <ButtonIcon>question_answer</ButtonIcon>
+                  <ButtonSvgIcon Icon={ConversationChatTextIcon} />
                   <Localized id="moderate-comment-viewConversation">
                     <span>View conversation</span>
                   </Localized>
@@ -260,7 +294,11 @@ const ModerateCard: FunctionComponent<Props> = ({
                     {siteName && (
                       <span className={styles.siteName}>
                         {siteName}
-                        <Icon>keyboard_arrow_right</Icon>
+                        <SvgIcon
+                          Icon={ArrowRightIcon}
+                          className={styles.siteNameArrow}
+                          size="xxs"
+                        />
                       </span>
                     )}
                     <span className={styles.storyTitle}>{storyTitle}</span>

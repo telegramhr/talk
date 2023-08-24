@@ -1,6 +1,5 @@
 import { Localized } from "@fluent/react/compat";
 import key from "keymaster";
-import { noop } from "lodash";
 import React, {
   FunctionComponent,
   useCallback,
@@ -26,7 +25,14 @@ import styles from "./Queue.css";
 
 interface Props {
   comments: Array<
-    { id: string } & PropTypesOf<typeof ModerateCardContainer>["comment"]
+    {
+      id: string;
+      site: { id: string };
+      author: {
+        allCommentsRejected: boolean | null;
+        commentsRejectedOnSites: ReadonlyArray<string> | null;
+      } | null;
+    } & PropTypesOf<typeof ModerateCardContainer>["comment"]
   >;
   settings: PropTypesOf<typeof ModerateCardContainer>["settings"];
   viewer: PropTypesOf<typeof ModerateCardContainer>["viewer"];
@@ -40,11 +46,9 @@ interface Props {
   viewNewCount?: number;
 }
 
-const QUEUE_HOTKEY_ID = "moderation-queue";
-
 const Queue: FunctionComponent<Props> = ({
   settings,
-  comments,
+  comments: unfilteredComments,
   viewer,
   hasLoadMore: hasMore,
   disableLoadMore,
@@ -63,7 +67,25 @@ const Queue: FunctionComponent<Props> = ({
   const [conversationModalVisible, setConversationModalVisible] =
     useState(false);
   const [conversationCommentID, setConversationCommentID] = useState("");
+  const [hasModerated, setHasModerated] = useState(false);
+  const [comments, setComments] = useState<typeof unfilteredComments>([]);
   const memoize = useMemoizer();
+
+  useEffect(() => {
+    const filteredComments = unfilteredComments.filter(
+      (comment) =>
+        !comment.author?.allCommentsRejected &&
+        !comment.author?.commentsRejectedOnSites?.includes(comment.site.id)
+    );
+    setComments(filteredComments);
+  }, [unfilteredComments]);
+
+  // So we can register hotkeys for the first comment without immediately pulling focus
+  useEffect(() => {
+    if (comments.length > 0) {
+      key.setScope(comments[0].id);
+    }
+  }, []);
 
   const toggleView = useCallback(() => {
     if (!singleView) {
@@ -81,49 +103,38 @@ const Queue: FunctionComponent<Props> = ({
   const commentsRef = useRef<Props["comments"]>(comments);
   commentsRef.current = comments;
 
-  const selectNext = useCallback(() => {
-    const index = selectedCommentRef.current || 0;
-    const nextComment = commentsRef.current[index + 1];
-    if (nextComment) {
-      setSelectedComment(index + 1);
-      const container: HTMLElement | null = window.document.getElementById(
-        `moderate-comment-${nextComment.id}`
-      );
-      if (container) {
-        container.scrollIntoView();
-      }
-    }
-  }, [window.document]);
-
-  const selectPrev = useCallback(() => {
-    const index = selectedCommentRef.current || 0;
-    const prevComment = commentsRef.current[index - 1];
-    if (prevComment) {
-      setSelectedComment(index - 1);
-      const container: HTMLElement | null = window.document.getElementById(
-        `moderate-comment-${prevComment.id}`
-      );
-      if (container) {
-        container.scrollIntoView();
-      }
-    }
-  }, [window.document]);
-
   useEffect(() => {
-    key(HOTKEYS.NEXT, QUEUE_HOTKEY_ID, selectNext);
-    key(HOTKEYS.PREV, QUEUE_HOTKEY_ID, selectPrev);
+    if (selectedComment !== null && commentsRef.current.length > 0) {
+      // We've moderated the last comment via hotkey
+      if (selectedComment >= commentsRef.current.length) {
+        setSelectedComment(commentsRef.current.length - 1);
+        // We've moderated the first comment via hotkey
+      } else if (selectedComment < 0 && hasModerated) {
+        setSelectedComment(0);
+      }
+    }
+  }, [commentsRef.current.length, selectedComment, hasModerated]);
 
-    // The the scope such that only events attached to the ${id} scope will
-    // be honored.
-    key.setScope(QUEUE_HOTKEY_ID);
+  const varyComment = useCallback(
+    (delta: number) => {
+      const index = selectedCommentRef.current || 0;
+      const targetComment = commentsRef.current[index + delta];
+      if (targetComment) {
+        setSelectedComment(index + delta);
+        const container: HTMLElement | null = window.document.getElementById(
+          `moderate-comment-${targetComment.id}`
+        );
+        if (container) {
+          container.scrollIntoView();
+        }
+      }
+    },
+    [window.document]
+  );
 
-    return () => {
-      // Remove all events that are set in the ${id} scope.
-      key.deleteScope(QUEUE_HOTKEY_ID);
-    };
+  const selectNext = useCallback(() => varyComment(1), [varyComment]);
 
-    return noop;
-  }, [selectNext, selectPrev]);
+  const selectPrev = useCallback(() => varyComment(-1), [varyComment]);
 
   const onSetUserDrawerUserID = useCallback((userID: string) => {
     setUserDrawerID(userID);
@@ -189,6 +200,7 @@ const Queue: FunctionComponent<Props> = ({
             selected={selectedComment === i}
             selectPrev={selectPrev}
             selectNext={selectNext}
+            onModerated={() => setHasModerated(true)}
           />
         )}
       />

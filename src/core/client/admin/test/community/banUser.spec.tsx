@@ -148,7 +148,7 @@ it("ban user with custom message", async () => {
   fireEvent.click(within(dropdown).getByRole("button", { name: "Manage Ban" }));
 
   const modal = screen.getByLabelText("Are you sure you want to ban Isabelle?");
-  const toggleMessage = within(modal).getByRole("checkbox", {
+  const toggleMessage = within(modal).getByRole("button", {
     name: "Customize ban email message",
   });
   userEvent.click(toggleMessage);
@@ -312,6 +312,35 @@ it("ban user across specific sites", async () => {
   userEvent.click(within(modal).getByRole("button", { name: "Save" }));
   expect(await within(userRow).findByText("Banned (1)")).toBeVisible();
   expect(resolvers.Mutation!.updateUserBan!.called).toBe(true);
+});
+
+it("displays limited options for single site tenants", async () => {
+  const resolvers = createResolversStub<GQLResolver>({
+    Query: {
+      settings: () => settings, // base settings has multisite: false
+    },
+  });
+
+  const { container } = await createTestRenderer({
+    resolvers,
+  });
+
+  const userRow = within(container).getByRole("row", {
+    name: "Isabelle isabelle@test.com 07/06/18, 06:24 PM Commenter Active",
+  });
+  userEvent.click(
+    within(userRow).getByRole("button", { name: "Change user status" })
+  );
+
+  const dropdown = within(userRow).getByLabelText(
+    "A dropdown to change the user status"
+  );
+  fireEvent.click(within(dropdown).getByRole("button", { name: "Manage Ban" }));
+
+  const modal = screen.getByLabelText("Are you sure you want to ban Isabelle?");
+  expect(modal).toBeInTheDocument();
+  expect(screen.queryByText("All sites")).not.toBeInTheDocument();
+  expect(screen.queryByText("Specific sites")).not.toBeInTheDocument();
 });
 
 it("site moderators can unban users on their sites but not sites out of their scope", async () => {

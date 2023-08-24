@@ -16,6 +16,8 @@ import ClosedStreamMessageConfig from "./ClosedStreamMessageConfig";
 import ClosingCommentStreamsConfig from "./ClosingCommentStreamsConfig";
 import CommentEditingConfig from "./CommentEditingConfig";
 import CommentLengthConfig from "./CommentLengthConfig";
+import FeaturedByConfig from "./FeaturedByConfig";
+import FlairBadgeConfigContainer from "./FlairBadgeConfigContainer";
 import FlattenRepliesConfig from "./FlattenRepliesConfig";
 import GuidelinesConfig from "./GuidelinesConfig";
 import LocaleConfig from "./LocaleConfig";
@@ -55,7 +57,9 @@ const GeneralConfigContainer: React.FunctionComponent<Props> = ({
       <ClosingCommentStreamsConfig disabled={submitting} />
       <ClosedStreamMessageConfig disabled={submitting} />
       <ReactionConfigContainer disabled={submitting} settings={settings} />
+      <FeaturedByConfig disabled={submitting} />
       <BadgeConfig disabled={submitting} />
+      <FlairBadgeConfigContainer disabled={submitting} settings={settings} />
       <MemberBioConfig disabled={submitting} />
       <MediaLinksConfig disabled={submitting} />
     </HorizontalGutter>
@@ -74,8 +78,11 @@ const enhanced = withFragmentContainer<Props>({
       ...ClosedStreamMessageConfig_formValues @relay(mask: false)
       ...ClosingCommentStreamsConfig_formValues @relay(mask: false)
       ...SitewideCommentingConfig_formValues @relay(mask: false)
+      ...FeaturedByConfig_formValues @relay(mask: false)
       ...ReactionConfig_formValues @relay(mask: false)
       ...BadgeConfig_formValues @relay(mask: false)
+      ...FlairBadgeConfigContainer_formValues @relay(mask: false)
+      ...FlairBadgeConfigContainer_settings
       ...RTEConfig_formValues @relay(mask: false)
       ...MediaLinksConfig_formValues @relay(mask: false)
       ...MemberBioConfig_formValues @relay(mask: false)

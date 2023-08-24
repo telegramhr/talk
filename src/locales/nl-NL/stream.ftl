@@ -93,7 +93,7 @@ comments-bannedInfo-violatedCommunityGuidelines =
   dit is foutief gebeurd is, neem dan contact op met onze moderator.
 
 comments-noCommentsAtAll = Er zijn geen reacties op dit artikel.
-comments-noCommentsYet = Er zijn nog geen reacties. Wil je er één schrijven?
+comments-noCommentsYet = Er zijn nog geen reacties. Plaats de eerste!
 
 comments-streamQuery-storyNotFound = Artikel niet gevonden
 
@@ -241,7 +241,7 @@ comments-reportButton-aria-reported =
 comments-sortMenu-sortBy = Sorteer op
 comments-sortMenu-newest = Nieuwste
 comments-sortMenu-oldest = Oudste
-comments-sortMenu-mostReplies = Meeste reacties
+comments-sortMenu-mostReplies = Meeste antwoorden
 
 comments-userPopover =
   .description = Meer gebruikers informatie
@@ -287,6 +287,7 @@ comments-moderationRejectedTombstone-moderateLink =
   Ga naar modereren om dit besluit te herzien.
 
 comments-featuredTag = Uitgelicht
+comments-featuredBy = Uitgelicht door <strong>{$username}</strong>
 
 # $reaction could be "Respect" as an example. Be careful when translating to other languages with different grammar cases.
 comments-react =
@@ -310,6 +311,15 @@ comments-mobileToolbar-closeButton =
   .aria-label = Sluiten
 comments-mobileToolbar-unmarkAll = Markeer alle als gelezen
 comments-mobileToolbar-nextUnread = Volgende ongelezen
+
+comments-refreshComments-closeButton = Sluiten <icon></icon>
+  .aria-label = Sluiten
+comments-refreshComments-refreshButton = <icon></icon> Herlaad reacties
+  .aria-label = Herlaad reacties
+comments-refreshQuestions-refreshButton = <icon></icon> Herlaad vragen
+  .aria-label = Herlaad vragen
+comments-refreshReviews-refreshButton = <icon></icon> Herlaad reviews
+  .aria-label = Herlaad reviews
 
 comments-replyChangedWarning-theCommentHasJust =
   Deze reactie is zojuist bewerkt. De nieuwste versie wordt hierboven weergegeven.
@@ -382,7 +392,7 @@ qa-answeredTooltip-toggleButton =
 ### Account Deletion Stream
 
 comments-stream-deleteAccount-callOut-title =
-  Verwijderen Account aangevraagd
+  Verwijderen account aangevraagd
 comments-stream-deleteAccount-callOut-receivedDesc =
   Een aanvraag om je account te verwijderen is ontvangen op { $date }.
 comments-stream-deleteAccount-callOut-cancelDesc =
@@ -645,23 +655,23 @@ profile-account-deleteAccount-pages-completeWhyDeleteAccount =
   ons reactiesysteem door te e-mailen{ $email }.
 profile-account-changePassword-edit = Bewerk
 profile-account-changePassword-change = Wijzigen
-
+  .aria-label = Wijzig wachtwoord
 
 ## Notifications
-profile-notificationsTab = Kennisgevingen
-profile-account-notifications-emailNotifications = E-mail Kennisgevingen
-profile-account-notifications-emailNotifications = E-mail Kennisgevingen
-profile-account-notifications-receiveWhen = Ontvang kennisgevingen als:
-profile-account-notifications-onReply = Mijn reactie ontvangt een antwoord
+profile-notificationsTab = Notificaties
+profile-account-notifications-emailNotifications = E-mail notificaties
+profile-account-notifications-emailNotifications = E-mail notificaties
+profile-account-notifications-receiveWhen = Ontvang notificaties als:
+profile-account-notifications-onReply = Mijn reactie een antwoord ontvangt
 profile-account-notifications-onFeatured = Mijn reactie is opgenomen in de lijst
-profile-account-notifications-onStaffReplies = Een medewerker van Doorbraak reageert op mijn reactie
-profile-account-notifications-onModeration = Mijn reactie in afwachting is nagezien
-profile-account-notifications-sendNotifications = Zend kennisgevingen:
+profile-account-notifications-onStaffReplies = Een medewerker reageert op mijn reactie
+profile-account-notifications-onModeration = Mijn reactie in afwachting is beoordeeld
+profile-account-notifications-sendNotifications = Stuur notificaties:
 profile-account-notifications-sendNotifications-immediately = Onmiddellijk
 profile-account-notifications-sendNotifications-daily = Dagelijks
 profile-account-notifications-sendNotifications-hourly = Elk uur
-profile-account-notifications-updated = Je instellingen voor je kennisgevingen zijn bijgewerkt
-profile-account-notifications-button = Update instellingen voor kennisgevingen
+profile-account-notifications-updated = Je instellingen voor je notificaties zijn bijgewerkt
+profile-account-notifications-button = Update instellingen voor notificaties
 profile-account-notifications-button-update = Update
 
 ## Report Comment Popover
@@ -677,9 +687,9 @@ comments-reportPopover-reasonSpam = Dit lijkt een advertentie of marketing
 comments-reportPopover-reasonOther = Anders
 
 comments-reportPopover-additionalInformation =
-  Meer informatie <optional>Optional</optional>
+  Meer informatie <optional>(optioneel)</optional>
 comments-reportPopover-pleaseLeaveAdditionalInformation =
-  Meer informatie <optional>Optioneel</optional>
+  Meer informatie <optional>(optioneel)</optional>
 
 comments-reportPopover-maxCharacters = Max. { $maxCharacters } tekens
 comments-reportPopover-restrictToMaxCharacters = Beperk je rapportage tot { $maxCharacters } tekens
@@ -737,6 +747,7 @@ profile-changeUsername-username = Gebruikersnaam
 profile-changeUsername-success = Je gebruikersnaam is succesvol aangepast
 profile-changeUsername-edit = Bewerk
 profile-changeUsername-change = Wijzigen
+  .aria-label = Wijzig gebruikernaam
 profile-changeUsername-heading = Bewerk je gebruikersnaam
 profile-changeUsername-heading-changeYourUsername = Change your username
 profile-changeUsername-desc = Wijzig de gebruikersnaam die bij al je vroegere en toekomstige reacties zal verschijnen. <strong>Gebruikersnamen kunnen gewijzigd worden ééns per { framework-timeago-time }.</strong>
@@ -898,6 +909,7 @@ profile-changeEmail-unverified = (Niet geverifieerd)
 profile-changeEmail-current = (Huidig)
 profile-changeEmail-edit = Bewerk
 profile-changeEmail-change = Aanpassen
+  .aria-label = Wijzig e-mailadres
 profile-changeEmail-please-verify = Controleer je e-mailadres
 profile-changeEmail-please-verify-details =
   Een e-mail is verzonden naar { $email } ter bevestiging van je account.
