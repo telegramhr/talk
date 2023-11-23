@@ -12,24 +12,24 @@ cd ..
 
 echo "running \`npm install\` for \`config\`"
 cd config
-npm i
+npm i --legacy-peer-deps
 cd ..
 
 echo "running \`npm install\` for \`common\`"
 cd common
-npm i
+npm i --legacy-peer-deps
 cd ..
 
 echo "running \`npm install\` for \`client\`"
 cd client
-npm i
+npm i --legacy-peer-deps
 cd ..
 
 echo "running \`npm install\` for \`server\`"
 cd server
-npm i
+npm i --legacy-peer-deps
 cd ..
 
 echo "running \`npm install\` for \`docs\`"
 cd docs
-npm i
+npm i --legacy-peer-deps
