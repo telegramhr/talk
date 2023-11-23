@@ -307,14 +307,14 @@ comments-mobileToolbar-closeButton =
 comments-mobileToolbar-unmarkAll = Označite sve kao pročitano
 comments-mobileToolbar-nextUnread = Sljedeće nepročitano
 
-comments-refreshComments-closeButton =
-.aria-label = Zatvori
-comments-refreshComments-refreshButton =
-.aria-label = Osvježi komentare
-comments-refreshQuestions-refreshButton =
-.aria-label = Osvježi pitanja
-  comments-refreshReviews-refreshButton =
-.aria-label = Osvježi recenzije
+comments-refreshComments-closeButton = Zatvorite <icon></icon>
+  .aria-label = Close
+comments-refreshComments-refreshButton = <icon></icon> Osvježite komentare
+  .aria-label = Osvježite komentare
+comments-refreshQuestions-refreshButton = <icon></icon> Osvježite pitanja
+  .aria-label = Osvježite pitanja
+comments-refreshReviews-refreshButton = <icon></icon> Osvježite ocjene
+  .aria-label = Osvežite ocjene
 
 comments-replyChangedWarning-theCommentHasJust =
   Ovaj komentar je upravo uređen. Najnovija verzija je prikazana iznad.
