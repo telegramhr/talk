@@ -34,7 +34,7 @@ jobs:
         id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
-          credentials_json: '${{ secrets.GCR_JSON_KEY }}'
+          credentials_json: '${{ secrets.GAR_JSON_KEY }}'
       -
         name: Set up Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v1'
@@ -58,56 +58,81 @@ jobs:
       -
         name: Install npm 8
         run: npm i -g npm@8.0.0 --registry=https://registry.npmjs.org
-      - name: npm Lockfile Version
-        uses: mansona/npm-lockfile-version@v1
-        with:
-          version: 2
+      # - name: npm Lockfile Version
+      #   uses: mansona/npm-lockfile-version@v1
+      #   with:
+      #     version: 2
       -
         name: Cache Dependencies
-        id: cache
+        id: cache-client
         uses: actions/cache@v3
         with:
-          path: ./node_modules
-          key: modules-${{ hashFiles('package-lock.json') }}
+          path: ./client/node_modules
+          key: modules-client-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+      -
+        name: Cache Dependencies
+        id: cache-common
+        uses: actions/cache@v3
+        with:
+          path: ./common/node_modules
+          key: modules-common-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+      -
+        name: Cache Dependencies
+        id: cache-server
+        uses: actions/cache@v3
+        with:
+          path: ./server/node_modules
+          key: modules-server-${{ hashFiles('package-lock.json') }}
           restore-keys: npm-
       -
         name: npm ci
-        run: npm ci
+        run: sh scripts/npm-ci.sh
       -
         name: Generate schemas and types
-        run: npm run generate
+        run: sh scripts/generate.sh
       -
         name: Lint Source Code
-        run: npm run lint
+        run: sh scripts/lint.sh
       -
         name: Lint Markdown
         run: |
+          cd client
           npm run doctoc
           git diff --exit-code
       -
         name: Lint Versions
-        run: npx @coralproject/package-version-lint
+        run: |
+          cd client
+          npx @coralproject/package-version-lint
       -
         name: Run Server Unit Tests
-        run: npm run test:server -- --ci --runInBand --reporters=default --reporters=jest-junit
+        run: cd server && npm run test:server -- --ci --runInBand --reporters=default --reporters=jest-junit
       -
         name: Run Client Stream Unit Tests
-        run: npm run test:client:stream -- --ci --runInBand --reporters=default --reporters=jest-junit
+        run: cd client && npm run test:client:stream -- --ci --runInBand --reporters=default --reporters=jest-junit
       -
         name: Run Client Admin Unit Tests
-        run: npm run test:client:admin -- --ci --runInBand --reporters=default --reporters=jest-junit
+        run: cd client && npm run test:client:admin -- --ci --runInBand --reporters=default --reporters=jest-junit
       -
         name: Run Client Other Unit Tests
-        run: npm run test:client:other -- --ci --runInBand --reporters=default --reporters=jest-junit
+        run: cd client && npm run test:client:other -- --ci --runInBand --reporters=default --reporters=jest-junit
       -
         name: Build
-        run: npm run build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
+        run: sh scripts/build.sh
       -
         name: Verify Bundle Size
-        run: ./node_modules/.bin/bundlesize --enable-github-checks
+        run: cd client && ./node_modules/.bin/bundlesize --enable-github-checks
       -
         name: Verify Release Version
-        run: npx @coralproject/package-version-lint --expect ${RC_TAG/#v}
+        run: |
+          cd client
+          npx @coralproject/package-version-lint --expect ${RC_TAG/#v}
+          cd ../server
+          npx @coralproject/package-version-lint --expect ${RC_TAG/#v}
       -
         name: Create the Pre-Tag Names
         run: |
@@ -154,7 +179,7 @@ jobs:
         name: Deploy Static Assets to GCS Bucket
         run: |
             CONTAINER_ID=$(docker create "coralproject/talk:${PATCH_TAG}")
-            docker cp "${CONTAINER_ID}:/usr/src/app/dist/static" static/
+            docker cp "${CONTAINER_ID}:/usr/src/app/client/dist/static" static/
             docker rm "${CONTAINER_ID}"
             find ./static -type f -name "*.gz" -print -delete
             gsutil -m -h "Cache-Control: public, max-age=86400, immutable" cp -r -z "js,css,map,txt,json" ./static/** "gs://${GOOGLE_CLOUD_BUCKET}/${PATCH_TAG}/"
@@ -162,7 +187,7 @@ jobs:
         name: Upload to Sentry
         run: |
             CONTAINER_ID=$(docker create "coralproject/talk:${PATCH_TAG}")
-            docker cp "${CONTAINER_ID}:/usr/src/app/dist" dist/
+            docker cp "${CONTAINER_ID}:/usr/src/app/client/dist" dist/
             docker rm "${CONTAINER_ID}"
             npx @sentry/cli -V
             npx @sentry/cli releases files "coral@${PATCH_TAG}" upload-sourcemaps ./dist --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }}
