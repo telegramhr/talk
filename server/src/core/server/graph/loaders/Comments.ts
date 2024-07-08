@@ -2,7 +2,10 @@ import DataLoader from "dataloader";
 import { defaultTo, isNumber } from "lodash";
 import { DateTime } from "luxon";
 
-import { StoryNotFoundError } from "coral-server/errors";
+import {
+  StoryNotFoundError,
+  UnableToPrimeCachedCommentsForStory,
+} from "coral-server/errors";
 import GraphContext from "coral-server/graph/context";
 import { retrieveManyUserActionPresence } from "coral-server/models/action/comment";
 import {
@@ -127,7 +130,6 @@ const flattenFilter = (
 /**
  * primeCommentsFromConnection will prime a given context with the comments
  * retrieved via a connection.
- *
  * @param ctx graph context to use to prime the loaders.
  */
 const primeCommentsFromConnection =
@@ -146,7 +148,6 @@ const primeCommentsFromConnection =
 /**
  * mapVisibleComment will provide a mapping function that will mark as null each
  * comment that should not be visible to the target User.
- *
  * @param user the User to determine the visibility status with based on
  * permissions
  */
@@ -180,7 +181,6 @@ interface ActionPresenceArgs {
 /**
  * mapVisibleComments will map each comment an array to an array of Comment and
  * null.
- *
  * @param user the User to determine the visibility status with based on
  * permissions
  */
@@ -372,11 +372,16 @@ export default (ctx: GraphContext) => ({
       return connection;
     }
 
-    const { userIDs } = await ctx.cache.comments.primeCommentsForStory(
+    const primeResult = await ctx.cache.comments.primeCommentsForStory(
       ctx.tenant.id,
       storyID,
       isArchived
     );
+    if (!primeResult) {
+      throw new UnableToPrimeCachedCommentsForStory(ctx.tenant.id, storyID);
+    }
+
+    const { userIDs } = primeResult;
     await ctx.cache.users.loadUsers(ctx.tenant.id, userIDs);
     await ctx.cache.commentActions.primeCommentActions(ctx.tenant.id, story.id);
 

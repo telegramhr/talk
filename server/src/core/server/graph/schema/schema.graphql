@@ -1734,6 +1734,21 @@ type BadgeConfiguration {
 }
 
 """
+topCommenter specifies whether or not the feature is enabled to show that commenters
+with comments featured within the last 10 days are top commenters
+"""
+type TopCommenterConfiguration {
+  """
+  enabled is whether the Top commenter feature is enabled
+  """
+  enabled: Boolean
+}
+
+type NewCommenterConfiguration {
+  enabled: Boolean
+}
+
+"""
 FlairBadgeConfiguration specifies the configuration for flair badges, including
 whether they are enabled and any configured image urls.
 """
@@ -1970,6 +1985,12 @@ type PremoderateEmailAddressConfiguration {
   tooManyPeriods: TooManyPeriodsConfig
 }
 
+type InPageNotificationsConfiguration {
+  enabled: Boolean
+
+  floatingBellIndicator: Boolean
+}
+
 input TooManyPeriodsConfigInput {
   """
   enabled decides whether the too many periods config is enabled or not.
@@ -2202,6 +2223,18 @@ type Settings @cacheControl(maxAge: 30) {
   featuredBy: Boolean
 
   """
+  topCommenter specifies whether or not the feature is enabled to show that commenters
+  with comments featured within the last 10 days are top commenters
+  """
+  topCommenter: TopCommenterConfiguration
+
+  """
+  newCommenter specifies whether or not the feature is enabled to show that commenters
+  are new and have joined within the last seven days.
+  """
+  newCommenter: NewCommenterConfiguration
+
+  """
   staff specifies the configuration for the user badges assigned to users with
   any role above COMMENTER
   """
@@ -2302,6 +2335,12 @@ type Settings @cacheControl(maxAge: 30) {
   emailDomainModeration: [EmailDomain!]!
 
   """
+  protectedEmailDomains is the configuration for email domains that are protected from email
+  domain moderation rules such as all accounts banned
+  """
+  protectedEmailDomains: [String!]!
+
+  """
   externalProfileURL is a string template for a link to a user's
   external profile.
   """
@@ -2329,6 +2368,18 @@ type Settings @cacheControl(maxAge: 30) {
   addresses at sign up and premoderating them according to various rules.
   """
   premoderateEmailAddress: PremoderateEmailAddressConfiguration
+
+  """
+  inPageNotifcations is the configuration for in-page notifications, including
+  whether it's enabled as an option for commenters.
+  """
+  inPageNotifications: InPageNotificationsConfiguration
+
+  """
+  showUnmoderatedCounts is whether to show the unmoderated comment count in the
+  moderation queues.
+  """
+  showUnmoderatedCounts: Boolean
 }
 
 ################################################################################
@@ -2693,6 +2744,33 @@ type UsernameStatus {
   history: [UsernameHistory!]!
 }
 
+enum UserDeletionUpdateType {
+  REQUESTED
+  CANCELED
+}
+
+type UserDeletionHistory {
+  """
+  updateType is the type of deletion status update that was made. For example,
+  user deletion was requested or canceled.
+  """
+  updateType: UserDeletionUpdateType!
+
+  """
+  createdBy is the user that made the deletion status update.
+  """
+  createdBy: User
+
+  """
+  createdAt is the time the user had a deletion status update.
+  """
+  createdAt: Time!
+}
+
+type UserDeletionStatus {
+  history: [UserDeletionHistory!]! @auth(roles: [ADMIN, MODERATOR])
+}
+
 """
 UserStatus stores the user status information regarding moderation state.
 """
@@ -2711,6 +2789,16 @@ type UserStatus {
   username stores the history of username changes for this user
   """
   username: UsernameStatus!
+    @auth(
+      userIDField: "userID"
+      roles: [ADMIN, MODERATOR]
+      permit: [SUSPENDED, BANNED, PENDING_DELETION, WARNED]
+    )
+
+  """
+  deletion stores the history of deletion requests and cancellations for the user
+  """
+  deletion: UserDeletionStatus!
     @auth(
       userIDField: "userID"
       roles: [ADMIN, MODERATOR]
@@ -2885,23 +2973,23 @@ type UserMediaSettings {
 }
 
 """
-UserNotificationSettings stores the notification settings for a given User.
+UserEmailNotificationSettings stores the email notification settings for a given User.
 """
-type UserNotificationSettings {
+type UserEmailNotificationSettings {
   """
-  onReply, when true, will enable notifications to be sent to users that have
+  onReply, when true, will enable email notifications to be sent to users that have
   replies to their comments.
   """
   onReply: Boolean!
 
   """
-  onFeatured, when true, will enable notifications to be sent to users that have
+  onFeatured, when true, will enable email notifications to be sent to users that have
   their comment's featured.
   """
   onFeatured: Boolean!
 
   """
-  onStaffReplies when true, will enable notifications to be sent to users that
+  onStaffReplies when true, will enable email notifications to be sent to users that
   have a staff member reply to their comments. These notifications will
   supercede notifications that would have been sent for a basic reply
   notification.
@@ -2909,16 +2997,71 @@ type UserNotificationSettings {
   onStaffReplies: Boolean!
 
   """
-  onModeration when true, will enable notifications to be sent to users when a
+  onModeration when true, will enable email notifications to be sent to users when a
   comment that they wrote that was previously unpublished, becomes published due
   to a moderator action.
   """
   onModeration: Boolean!
 
   """
-  digestFrequency is the frequency to send notifications.
+  digestFrequency is the frequency to send email notifications.
   """
   digestFrequency: DIGEST_FREQUENCY!
+}
+
+enum InPageNotificationReplyType {
+  """
+  The user wishes to receive in-page notifications from everyone
+  """
+  ALL
+
+  """
+  The user wishes to receive in-page notifications from staff members only
+  """
+  STAFF
+}
+
+type OnReplySettings {
+  """
+  In-page notifications for replies is enabled
+  """
+  enabled: Boolean!
+
+  """
+  This keeps track of what type of reply the user would like to be notified on when
+  in-page reply notifications is enabled
+  """
+  showReplies: InPageNotificationReplyType!
+}
+
+"""
+UserInPageNotificationSettings stores the in-page notification settings for a given User.
+"""
+type UserInPageNotificationSettings {
+  """
+  enabled, when true, means the in-page notifications updates with notification count;
+  when disabled, it still appears and can be clicked but shows no indication of updates
+  """
+  enabled: Boolean!
+
+  """
+  onReply, when true, will enable in-page notifications to be sent to users that have
+  replies to their comments.
+  """
+  onReply: OnReplySettings!
+
+  """
+  onFeatured, when true, will enable in-page notifications to be sent to users that have
+  their comment's featured.
+  """
+  onFeatured: Boolean!
+
+  """
+  onModeration when true, will enable in-page notifications to be sent to users when a
+  comment that they wrote that was previously unpublished, becomes published due
+  to a moderator action.
+  """
+  onModeration: Boolean!
 }
 
 """
@@ -3170,9 +3313,19 @@ type User {
     )
 
   """
-  notifications stores the notification settings for the given User.
+  notifications stores the email notification settings for the given User.
   """
-  notifications: UserNotificationSettings!
+  notifications: UserEmailNotificationSettings!
+    @auth(
+      userIDField: "id"
+      roles: [ADMIN]
+      permit: [SUSPENDED, BANNED, PENDING_DELETION, WARNED]
+    )
+
+  """
+  inPageNotifications stores the in-page notification settings for the given User.
+  """
+  inPageNotifications: UserInPageNotificationSettings!
     @auth(
       userIDField: "id"
       roles: [ADMIN]
@@ -3282,6 +3435,23 @@ type User {
       roles: [ADMIN, MODERATOR]
       permit: [SUSPENDED, BANNED, PENDING_DELETION, WARNED]
     )
+
+  """
+  lastFeaturedDate is when a user last had a comment featured.
+  This is used for the Top commenter badge feature.
+  """
+  lastFeaturedDate: Time
+
+  """
+  featuredCommenter is whether a user has had a comment featured within the
+  last 10 days or not
+  """
+  featuredCommenter: Boolean
+
+  """
+  newCommenter is whether a user has joined within the last seven days.
+  """
+  newCommenter: Boolean
 }
 
 """
@@ -3965,6 +4135,11 @@ type CommentRevision {
   createdAt is the time that the CommentRevision was created.
   """
   createdAt: Time!
+
+  """
+  status is the status of the CommentRevision.
+  """
+  status: COMMENT_STATUS
 }
 
 enum TAG {
@@ -4141,6 +4316,11 @@ type Comment @cacheControl(maxAge: 5) {
   status: COMMENT_STATUS!
 
   """
+  initialStatus represents the Comment's status when it was initially created.
+  """
+  initialStatus: COMMENT_STATUS
+
+  """
   statusHistory returns a CommentModerationActionConnection that will list
   the history of moderator actions performed on the Comment, with the most
   recent last.
@@ -4225,7 +4405,7 @@ type Comment @cacheControl(maxAge: 5) {
   reactions(
     first: Int = 10 @constraint(max: 50)
     after: Cursor
-  ): ReactionsConnection! @auth
+  ): ReactionsConnection! @auth(permit: [PENDING_DELETION])
 
   """
   flags is the actual Flags that were left by the Users or the system.
@@ -4816,6 +4996,8 @@ enum NOTIFICATION_TYPE {
   COMMENT_REJECTED
   ILLEGAL_REJECTED
   DSA_REPORT_DECISION_MADE
+  REPLY
+  REPLY_STAFF
 }
 
 type Notification {
@@ -4846,12 +5028,24 @@ type Notification {
   comment: Comment
 
   """
+  commentReply is the optional comment reply that is linked to this notification.
+  """
+  commentReply: Comment
+
+  """
   commentStatus is the optional status of the comment when the notification
   was created. This allows for the context of the state of the comment to be
   persisted even if the comment reference undergoes multiple moderation actions
   since the notification was created.
   """
   commentStatus: COMMENT_STATUS
+
+  """
+  previousStatus is the optional prior status of the comment when the notification
+  was created. This allows us to determine if a comment was previously pending
+  review, or reported to compare against the current status (rejected, approved, etc).
+  """
+  previousStatus: COMMENT_STATUS
 
   """
   rejectionReason is an optional field that defines why a comment was rejected.
@@ -5161,6 +5355,8 @@ type Query {
     first: Int = 10 @constraint(max: 50)
     after: Cursor
   ): NotificationsConnection!
+
+  notificationCount(userID: ID!): Int
 }
 
 ################################################################################
@@ -5168,24 +5364,24 @@ type Query {
 ################################################################################
 
 ##################
-## updateNotificationSettings
+## updateEmailNotificationSettings
 ##################
 
-input UpdateNotificationSettingsInput {
+input UpdateEmailNotificationSettingsInput {
   """
-  onReply, when true, will enable notifications to be sent to users that have
+  onReply, when true, will enable email notifications to be sent to users that have
   replies to their comments.
   """
   onReply: Boolean
 
   """
-  onFeatured, when true, will enable notifications to be sent to users that have
+  onFeatured, when true, will enable email notifications to be sent to users that have
   their comment's featured.
   """
   onFeatured: Boolean
 
   """
-  onStaffReplies when true, will enable notifications to be sent to users that
+  onStaffReplies when true, will enable email notifications to be sent to users that
   have a staff member reply to their comments. These notifications will
   supercede notifications that would have been sent for a basic reply
   notification.
@@ -5193,14 +5389,14 @@ input UpdateNotificationSettingsInput {
   onStaffReplies: Boolean
 
   """
-  onModeration when true, will enable notifications to be sent to users when a
+  onModeration when true, will enable email notifications to be sent to users when a
   comment that they wrote that was previously unpublished, becomes published due
   to a moderator action.
   """
   onModeration: Boolean
 
   """
-  digestFrequency is the frequency to send notifications.
+  digestFrequency is the frequency to send email notifications.
   """
   digestFrequency: DIGEST_FREQUENCY
 
@@ -5210,7 +5406,67 @@ input UpdateNotificationSettingsInput {
   clientMutationId: String!
 }
 
-type UpdateNotificationSettingsPayload {
+type UpdateEmailNotificationSettingsPayload {
+  """
+  user is the possibly modified User.
+  """
+  user: User!
+
+  """
+  clientMutationId is required for Relay support.
+  """
+  clientMutationId: String!
+}
+
+input OnReplySettingsInput {
+  """
+  In-page notifications for replies is enabled
+  """
+  enabled: Boolean!
+
+  """
+  This keeps track of what type of reply the user would like to be notified on when
+  in-page reply notifications is enabled
+  """
+  showReplies: InPageNotificationReplyType!
+}
+
+##################
+## updateInPageNotificationSettings
+##################
+
+input UpdateInPageNotificationSettingsInput {
+  """
+  onReply, when true, will enable in-page notifications to be sent to users that have
+  replies to their comments.
+  """
+  onReply: OnReplySettingsInput
+
+  """
+  onFeatured, when true, will enable in-page notifications to be sent to users that have
+  their comment's featured.
+  """
+  onFeatured: Boolean
+
+  """
+  onModeration when true, will enable in-page notifications to be sent to users when a
+  comment that they wrote that was previously unpublished, becomes published due
+  to a moderator action.
+  """
+  onModeration: Boolean
+
+  """
+  enabled, when true, shows a notification count for in-page notifications
+  """
+  enabled: Boolean
+
+  """
+  clientMutationId is required for Relay support.
+  """
+  clientMutationId: String!
+}
+
+type UpdateInPageNotificationSettingsPayload {
   """
   user is the possibly modified User.
   """
@@ -5989,6 +6245,25 @@ input ReactionConfigurationInput {
 }
 
 """
+topCommenter specifies whether or not the feature is enabled to show that commenters
+with comments featured within the last 10 days are top commenters
+"""
+input TopCommenterConfigurationInput {
+  """
+  enabled is whether the Top commenter feature is enabled
+  """
+  enabled: Boolean
+}
+
+"""
+newCommenter specifies whether or not the feature is enabled to show that commenters
+are new and have joined within the last seven days.
+"""
+input NewCommenterConfigurationInput {
+  enabled: Boolean
+}
+
+"""
 BadgeConfigurationInput specifies the configuration for the staff badges
 assigned to users with any role above COMMENTER.
 """
@@ -6211,6 +6486,22 @@ input RTEConfigurationInput {
 }
 
 """
+InPageNotificationsConfigurationInput specifies the configuration for in-page notifications.
+"""
+input InPageNotificationsConfigurationInput {
+  """
+  enabled when true turns on in-page notifications as an option for commenters.
+  """
+  enabled: Boolean
+
+  """
+  floatingBellIndicator when true shows a floating bell for notifications; when false,
+  there is no floating bell and the Notifications tab is aligned left.
+  """
+  floatingBellIndicator: Boolean
+}
+
+"""
 FlairBadgeConfigurationInput specifies the configuration for flair badges,
 including whether they are enabled and their image urls.
 """
@@ -6375,6 +6666,18 @@ input SettingsInput {
   featuredBy: Boolean
 
   """
+  topCommenter specifies whether or not the feature is enabled to show that commenters
+  with comments featured within the last 10 days are top commenters
+  """
+  topCommenter: TopCommenterConfigurationInput
+
+  """
+  newCommenter specifies whether or not the feature is enabled to show that commenters
+  are new and have joined within the last seven days.
+  """
+  newCommenter: NewCommenterConfigurationInput
+
+  """
   badges specifies the configuration for user badges assigned to users with
   any role above COMMENTER.
   """
@@ -6464,7 +6767,6 @@ input SettingsInput {
   """
   flairBadges: FlairBadgeConfigurationInput
 
-
   """
   dsa specifies the configuration for DSA European Union moderation and
   reporting features.
@@ -6476,6 +6778,23 @@ input SettingsInput {
   addresses at sign up and premoderating them according to various rules.
   """
   premoderateEmailAddress: PremoderateEmailAddressConfigurationInput
+
+  """
+  protectedEmailDomains is the configuration for email domains that are protected from email
+  domain moderation rules such as all accounts banned
+  """
+  protectedEmailDomains: [String!]
+
+  """
+  inPageNotifications specifies the configuration for in-page notifications
+  """
+  inPageNotifications: InPageNotificationsConfigurationInput
+
+  """
+  showUnmoderatedCounts is whether or not to show the unmoderated counts in the
+  moderation queue.
+  """
+  showUnmoderatedCounts: Boolean
 }
 
 """
@@ -6910,7 +7229,7 @@ input CreateDSAReportInput {
   """
   id of the user who submitted the DSAReport
   """
-  userID: ID!
+  userID: ID
 
   """
   lawBrokenDescription is the text entered by the submitting user to describe
@@ -8253,6 +8572,62 @@ type RequestAccountDeletionPayload {
 }
 
 ##################
+# scheduleAccountDeletion
+##################
+
+input ScheduleAccountDeletionInput {
+  """
+  userID is the ID of the User being deleted.
+  """
+  userID: ID!
+
+  """
+  clientMutationId is required for Relay support.
+  """
+  clientMutationId: String!
+}
+
+type ScheduleAccountDeletionPayload {
+  """
+  user is the User that was deleted.
+  """
+  user: User
+
+  """
+  clientMutationId is required for Relay support.
+  """
+  clientMutationId: String!
+}
+
+##################
+# cancelScheduledAccountDeletion
+##################
+
+input CancelScheduledAccountDeletionInput {
+  """
+  userID is the ID of the User whose scheduled deletion is being canceled.
+  """
+  userID: ID!
+
+  """
+  clientMutationId is required for Relay support.
+  """
+  clientMutationId: String!
+}
+
+type CancelScheduledAccountDeletionPayload {
+  """
+  user is the User whose scheduled deletion was canceled.
+  """
+  user: User
+
+  """
+  clientMutationId is required for Relay support.
+  """
+  clientMutationId: String!
+}
+
+##################
 # deleteUserAccount
 ##################
 
@@ -8925,6 +9300,12 @@ input BanUserInput {
   whether or not to reject all the user's previous comments when banning them.
   """
   rejectExistingComments: Boolean
+
+  """
+  rejectionReason is the reason provided for why any existing comments are being
+  rejected if DSA is enabled
+  """
+  rejectionReason: RejectCommentReasonInput
 }
 
 type BanUserPayload {
@@ -8966,6 +9347,12 @@ input UpdateUserBanInput {
   on sites on which the user has been newly banned, if any.
   """
   rejectExistingComments: Boolean
+
+  """
+  rejectionReason is the reason provided for why any existing comments are being
+  rejected if DSA is enabled
+  """
+  rejectionReason: RejectCommentReasonInput
 
   """
   clientMutationID is required for relay support
@@ -10068,7 +10455,7 @@ type Mutation {
   """
   createCommentFlag(input: CreateCommentFlagInput!): CreateCommentFlagPayload!
     @auth
-    @rate(seconds: 3)
+    @rate(max: 2, seconds: 3)
 
   """
   featureComment will mark a given Comment as featured.
@@ -10222,6 +10609,22 @@ type Mutation {
     @rate(seconds: 10)
 
   """
+  scheduleAccountDeletion allows an admin to schedule an account deletion
+  for a target user
+  """
+  scheduleAccountDeletion(
+    input: ScheduleAccountDeletionInput!
+  ): ScheduleAccountDeletionPayload! @auth(roles: [ADMIN])
+
+  """
+  cancelScheduledAccountDeletion allows an admin to cancel a scheduled account deletion
+  for a target user
+  """
+  cancelScheduledAccountDeletion(
+    input: CancelScheduledAccountDeletionInput!
+  ): CancelScheduledAccountDeletionPayload! @auth(roles: [ADMIN])
+
+  """
   deleteUserAccount will delete the target user now.
   """
   deleteUserAccount(input: DeleteUserAccountInput!): DeleteUserAccountPayload!
@@ -10266,12 +10669,21 @@ type Mutation {
     @rate(seconds: 10)
 
   """
-  updateNotificationSettings can be used to update the notification settings for
+  updateEmailNotificationSettings can be used to update the email notification settings for
   the current logged in user.
   """
-  updateNotificationSettings(
-    input: UpdateNotificationSettingsInput!
-  ): UpdateNotificationSettingsPayload!
+  updateEmailNotificationSettings(
+    input: UpdateEmailNotificationSettingsInput!
+  ): UpdateEmailNotificationSettingsPayload!
+    @auth(permit: [SUSPENDED, BANNED, PENDING_DELETION, WARNED])
+
+  """
+  updateInPageNotificationSettings can be used to update the in-page notification settings for
+  the current logged in user.
+  """
+  updateInPageNotificationSettings(
+    input: UpdateInPageNotificationSettingsInput!
+  ): UpdateInPageNotificationSettingsPayload!
     @auth(permit: [SUSPENDED, BANNED, PENDING_DELETION, WARNED])
 
   """

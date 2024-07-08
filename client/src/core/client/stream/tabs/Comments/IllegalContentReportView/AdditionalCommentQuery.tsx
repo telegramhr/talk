@@ -13,7 +13,7 @@ import { AdditionalCommentQuery as QueryTypes } from "coral-stream/__generated__
 export const render = (
   { error, props }: QueryRenderData<QueryTypes>,
   additionalComment: { id: string; url: string },
-  onAddCommentError: (error: string, commentID: string) => void,
+  onAddCommentError: (errorMessage: string, commentID: string) => void,
   onAddCommentSuccess: (id: string, url: string) => void,
   localeBundles: FluentBundle[]
 ) => {
@@ -34,7 +34,7 @@ export const render = (
       const previouslyReportedError = getMessage(
         localeBundles,
         "comments-permalinkView-reportIllegalContent-additionalComments-previouslyReportedCommentError",
-        "You've previously reported this comment for containing illegal content. You may only report a comment for this reason one time."
+        "You've previously reported this comment for containing potentially illegal content. You may only report a comment for this reason one time."
       );
       onAddCommentError(previouslyReportedError, additionalComment.id);
       return null;
@@ -51,7 +51,7 @@ export const render = (
 
 interface Props {
   additionalComment: { id: string; url: string };
-  onAddCommentError: (error: string, commentID: string) => void;
+  onAddCommentError: (errorMessage: string, commentID: string) => void;
   onAddCommentSuccess: (id: string, url: string) => void;
 }
 

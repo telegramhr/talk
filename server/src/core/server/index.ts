@@ -266,6 +266,7 @@ class Server {
       signingConfig: this.signingConfig,
       notifications: new InternalNotificationContext(
         this.mongo,
+        this.redis,
         this.i18n,
         logger
       ),
@@ -407,7 +408,6 @@ class Server {
   /**
    * start orchestrates the application by starting it and returning a promise
    * when the server has started.
-   *
    * @param parent the optional express application to bind the server to.
    */
   public async start({ parent }: ServerStartOptions) {

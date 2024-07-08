@@ -88,6 +88,11 @@ export const User: GQLUserTypeResolver<user.User> = {
     // Get the Stories!
     return ctx.loaders.Stories.story.loadMany(results.map(({ _id }) => _id));
   },
+  inPageNotifications: ({ inPageNotifications }) => {
+    return inPageNotifications
+      ? inPageNotifications
+      : user.defaultInPageNotificationSettings;
+  },
   mediaSettings: ({ mediaSettings = {} }) => mediaSettings,
   hasNewNotifications: ({ lastSeenNotificationDate }, input, ctx) => {
     if (!ctx.user) {
@@ -101,5 +106,28 @@ export const User: GQLUserTypeResolver<user.User> = {
   },
   lastSeenNotificationDate: ({ lastSeenNotificationDate }) => {
     return lastSeenNotificationDate ?? new Date(0);
+  },
+  featuredCommenter: ({ lastFeaturedDate }) => {
+    const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+    return lastFeaturedDate && lastFeaturedDate >= tenDaysAgo;
+  },
+  newCommenter: ({ createdAt }) => {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    return createdAt >= sevenDaysAgo;
+  },
+  badges: ({ badges, secretBadges }) => {
+    if (!badges && !secretBadges) {
+      return undefined;
+    }
+
+    let result: string[] = [];
+    if (badges) {
+      result = [...result, ...badges];
+    }
+    if (secretBadges) {
+      result = [...result, ...secretBadges];
+    }
+
+    return result;
   },
 };

@@ -1,6 +1,7 @@
 import { merge } from "lodash";
 import { v4 as uuid } from "uuid";
 
+import { PROTECTED_EMAIL_DOMAINS } from "coral-common/common/lib/constants";
 import TIME from "coral-common/common/lib/time";
 import { Comment } from "coral-server/models/comment";
 import { Site } from "coral-server/models/site";
@@ -12,13 +13,14 @@ import {
   GQLCOMMENT_STATUS,
   GQLDIGEST_FREQUENCY,
   GQLDSA_METHOD_OF_REDRESS,
+  GQLInPageNotificationReplyType,
   GQLMODERATION_MODE,
   GQLUSER_ROLE,
 } from "coral-server/graph/schema/__generated__/types";
 
 type Defaults<T> = {
-  [P in keyof T]?: T[P] extends (infer U)[]
-    ? Defaults<U>[]
+  [P in keyof T]?: T[P] extends Array<infer U>
+    ? Array<Defaults<U>>
     : T[P] extends object
     ? Defaults<T[P]>
     : T[P];
@@ -195,6 +197,11 @@ export const createTenantFixture = (
       allowReplies: true,
       oEmbedAllowedOrigins: [],
     },
+    protectedEmailDomains: Array.from(PROTECTED_EMAIL_DOMAINS),
+    inPageNotifications: {
+      enabled: true,
+      floatingBellIndicator: true,
+    },
   };
 
   return merge(fixture, defaults);
@@ -237,6 +244,15 @@ export const createUserFixture = (defaults: Defaults<User> = {}): User => {
       onStaffReplies: false,
       digestFrequency: GQLDIGEST_FREQUENCY.NONE,
     },
+    inPageNotifications: {
+      onReply: {
+        enabled: true,
+        showReplies: GQLInPageNotificationReplyType.ALL,
+      },
+      onFeatured: true,
+      onModeration: true,
+      enabled: true,
+    },
     digests: [],
     hasDigests: false,
     status: {
@@ -246,6 +262,9 @@ export const createUserFixture = (defaults: Defaults<User> = {}): User => {
       ban: {
         active: false,
         siteIDs: [],
+        history: [],
+      },
+      deletion: {
         history: [],
       },
       username: {
@@ -365,6 +384,7 @@ export const createCommentFixture = (
         actionCounts: {},
         metadata: {},
         createdAt: new Date(),
+        status: GQLCOMMENT_STATUS.APPROVED,
       },
     ],
     actionCounts: {},
@@ -372,6 +392,7 @@ export const createCommentFixture = (
     childIDs: [],
     tags: [],
     createdAt: new Date(),
+    initialStatus: GQLCOMMENT_STATUS.NONE,
   };
 
   return merge(comment, defaults) as Comment;

@@ -23,12 +23,20 @@ export const Mutation: Required<GQLMutationTypeResolver<void>> = {
     },
     clientMutationId: input.clientMutationId,
   }),
-  updateNotificationSettings: async (
+  updateEmailNotificationSettings: async (
     source,
     { input: { clientMutationId, ...input } },
     ctx
   ) => ({
-    user: await ctx.mutators.Users.updateNotificationSettings(input),
+    user: await ctx.mutators.Users.updateEmailNotificationSettings(input),
+    clientMutationId,
+  }),
+  updateInPageNotificationSettings: async (
+    source,
+    { input: { clientMutationId, ...input } },
+    ctx
+  ) => ({
+    user: await ctx.mutators.Users.updateInPageNotificationSettings(input),
     clientMutationId,
   }),
   updateUserMediaSettings: async (
@@ -305,6 +313,14 @@ export const Mutation: Required<GQLMutationTypeResolver<void>> = {
   }),
   requestAccountDeletion: async (source, { input }, ctx) => ({
     user: await ctx.mutators.Users.requestAccountDeletion(input),
+    clientMutationId: input.clientMutationId,
+  }),
+  scheduleAccountDeletion: async (source, { input }, ctx) => ({
+    user: await ctx.mutators.Users.scheduleAccountDeletion(input),
+    clientMutationId: input.clientMutationId,
+  }),
+  cancelScheduledAccountDeletion: async (source, { input }, ctx) => ({
+    user: await ctx.mutators.Users.cancelScheduledAccountDeletion(input),
     clientMutationId: input.clientMutationId,
   }),
   cancelAccountDeletion: async (source, { input }, ctx) => ({

@@ -360,7 +360,12 @@ export const CommentContainer: FunctionComponent<Props> = ({
 
   const commentTags = (
     <>
-      {hasFeaturedTag && !isQA && <FeaturedTag collapsed={collapsed} />}
+      {hasFeaturedTag && !isQA && (
+        <FeaturedTag
+          collapsed={collapsed}
+          topCommenterEnabled={settings.topCommenter?.enabled}
+        />
+      )}
       {hasAnsweredTag && isQA && <AnsweredTag collapsed={collapsed} />}
     </>
   );
@@ -536,6 +541,10 @@ export const CommentContainer: FunctionComponent<Props> = ({
           highlight={highlight}
           toggleCollapsed={toggleCollapsed}
           parent={comment.parent}
+          featuredCommenter={comment.author?.featuredCommenter}
+          topCommenterEnabled={settings.topCommenter?.enabled}
+          newCommenter={comment.author?.newCommenter}
+          newCommenterEnabled={settings.newCommenter?.enabled}
           staticUsername={
             comment.author && (
               <Flex direction="row" alignItems="center" wrap>
@@ -749,6 +758,7 @@ export const CommentContainer: FunctionComponent<Props> = ({
                         open={showReportFlow}
                         viewer={viewer}
                         comment={comment}
+                        settings={settings}
                       />
                     )}
                 </ButtonsBar>
@@ -855,6 +865,8 @@ const enhanced = withShowAuthPopupMutation(
           username
           avatar
           badges
+          featuredCommenter
+          newCommenter
         }
         parent {
           id
@@ -908,6 +920,12 @@ const enhanced = withShowAuthPopupMutation(
         disableCommenting {
           enabled
         }
+        topCommenter {
+          enabled
+        }
+        newCommenter {
+          enabled
+        }
         featureFlags
         ...CaretContainer_settings
         ...EditCommentFormContainer_settings
@@ -920,6 +938,7 @@ const enhanced = withShowAuthPopupMutation(
         ...UserTagsContainer_settings
         ...ArchivedReportFlowContainer_settings
         ...AuthorBadgesContainer_settings
+        ...ReportButton_settings
       }
     `,
   })(CommentContainer)

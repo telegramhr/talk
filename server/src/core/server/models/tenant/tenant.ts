@@ -2,7 +2,10 @@ import { isEmpty } from "lodash";
 import { DateTime } from "luxon";
 import { v4 as uuid } from "uuid";
 
-import { DEFAULT_SESSION_DURATION } from "coral-common/common/lib/constants";
+import {
+  DEFAULT_SESSION_DURATION,
+  PROTECTED_EMAIL_DOMAINS,
+} from "coral-common/common/lib/constants";
 import { LanguageCode } from "coral-common/common/lib/helpers/i18n/locales";
 import TIME from "coral-common/common/lib/time";
 import { DeepPartial, Sub } from "coral-common/common/lib/types";
@@ -40,6 +43,7 @@ import {
 /**
  * LEGACY_FEATURE_FLAGS are feature flags, that are no longer used.
  */
+// eslint-disable-next-line no-shadow
 export enum LEGACY_FEATURE_FLAGS {
   ENABLE_AMP = "ENABLE_AMP",
   FLATTEN_REPLIES = "FLATTEN_REPLIES",
@@ -299,6 +303,18 @@ export const combineTenantDefaultsAndInput = (
         method: GQLDSA_METHOD_OF_REDRESS.NONE,
       },
     },
+    topCommenter: {
+      enabled: false,
+    },
+    newCommenter: {
+      enabled: false,
+    },
+    protectedEmailDomains: Array.from(PROTECTED_EMAIL_DOMAINS),
+    inPageNotifications: {
+      enabled: true,
+      floatingBellIndicator: true,
+    },
+    showUnmoderatedCounts: true,
   };
 
   // Create the new Tenant by merging it together with the defaults.
@@ -312,7 +328,6 @@ export const combineTenantDefaultsAndInput = (
 
 /**
  * create will create a new Tenant.
- *
  * @param mongo the MongoDB connection used to create the tenant.
  * @param i18n i18n instance
  * @param input the customizable parts of the Tenant available during creation

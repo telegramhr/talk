@@ -455,4 +455,22 @@ export enum ERROR_CODES {
    * flair badge with a name that includes invalid characters.
    */
   INVALID_FLAIR_BADGE_NAME = "INVALID_FLAIR_BADGE_NAME",
+
+  /**
+   * DSA_REPORT_LAW_BROKEN_TOO_LONG is thrown when someone tries to add an explanation for what
+   * law is believed to have been broken to a DSA report that is too long
+   */
+  DSA_REPORT_LAW_BROKEN_TOO_LONG = "DSA_REPORT_LAW_BROKEN_TOO_LONG",
+
+  /**
+   * DSA_REPORT_ADDITIONAL_INFO_TOO_LONG is thrown when someone tries to add additional information
+   * to a DSA report that is too long
+   */
+  DSA_REPORT_ADDITIONAL_INFO_TOO_LONG = "DSA_REPORT_ADDITIONAL_INFO_TOO_LONG",
+  /**
+   * UNABLE_TO_PRIME_CACHED_COMMENTS_FOR_STORY is thrown when DATA_CACHE is enabled and the
+   * priming of comments for the story in the data caches `commentCache` returns an undefined
+   * result. This usually means something went very wrong loading from Redis or Mongo.
+   */
+  UNABLE_TO_PRIME_CACHED_COMMENTS_FOR_STORY = "UNABLE_TO_PRIME_CACHED_COMMENTS_FOR_STORY"
 }

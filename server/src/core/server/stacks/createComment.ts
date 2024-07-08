@@ -42,7 +42,7 @@ import {
 } from "coral-server/models/story";
 import { ensureFeatureFlag, Tenant } from "coral-server/models/tenant";
 import { User } from "coral-server/models/user";
-import { isSiteBanned } from "coral-server/models/user/helpers";
+import { isSiteBanned, roleIsStaff } from "coral-server/models/user/helpers";
 import { moderate, removeTag } from "coral-server/services/comments";
 import {
   addCommentActions,
@@ -66,6 +66,7 @@ import { Request } from "coral-server/types/express";
 import {
   GQLCOMMENT_STATUS,
   GQLFEATURE_FLAG,
+  GQLNOTIFICATION_TYPE,
   GQLSTORY_MODE,
   GQLTAG,
 } from "coral-server/graph/schema/__generated__/types";
@@ -87,6 +88,7 @@ export type CreateComment = Omit<
   | "tags"
   | "siteID"
   | "media"
+  | "initialStatus"
 > & {
   rating?: number;
   media?: CreateCommentMediaInput;
@@ -155,7 +157,9 @@ const markCommentAsAnswered = async (
       comment.parentID,
       comment.parentRevisionID,
       author.id,
-      now
+      now,
+      undefined,
+      false
     ),
   ]);
 
@@ -376,6 +380,7 @@ export default async function create(
       metadata: result.metadata,
       actionCounts,
       media,
+      initialStatus: result.status,
     },
     now
   );
@@ -427,6 +432,18 @@ export default async function create(
       )) ?? null;
 
     log.trace("pushed child comment id onto parent");
+
+    if (parent) {
+      const type = roleIsStaff(author.role)
+        ? GQLNOTIFICATION_TYPE.REPLY_STAFF
+        : GQLNOTIFICATION_TYPE.REPLY;
+      await notifications.create(tenant.id, tenant.locale, {
+        targetUserID: parent.authorID!,
+        comment: parent,
+        reply: comment,
+        type,
+      });
+    }
   }
 
   if (result.commentActions.length > 0) {
@@ -472,6 +489,13 @@ export default async function create(
         actionCounts,
       }
     );
+
+    await notifications.create(tenant.id, tenant.locale, {
+      targetUserID: comment.authorID!,
+      comment,
+      rejectionReason: result.moderationAction.rejectionReason,
+      type: GQLNOTIFICATION_TYPE.COMMENT_REJECTED,
+    });
   }
 
   // Update all the comment counts on stories and users.

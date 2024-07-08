@@ -534,6 +534,24 @@ export class UserBioTooLongError extends CoralError {
   }
 }
 
+export class DSAReportLawBrokenTooLongError extends CoralError {
+  constructor(commentID: string) {
+    super({
+      code: ERROR_CODES.DSA_REPORT_LAW_BROKEN_TOO_LONG,
+      context: { pub: { commentID } },
+    });
+  }
+}
+
+export class DSAReportAdditionalInfoTooLongError extends CoralError {
+  constructor(commentID: string) {
+    super({
+      code: ERROR_CODES.DSA_REPORT_ADDITIONAL_INFO_TOO_LONG,
+      context: { pub: { commentID } },
+    });
+  }
+}
+
 export class UserNotFoundError extends CoralError {
   constructor(userID: string) {
     super({ code: ERROR_CODES.USER_NOT_FOUND, context: { pub: { userID } } });
@@ -1042,6 +1060,15 @@ export class InvalidFlairBadgeName extends CoralError {
   constructor(tenantID: string) {
     super({
       code: ERROR_CODES.INVALID_FLAIR_BADGE_NAME,
+      context: { pub: { tenantID } },
+    });
+  }
+}
+
+export class UnableToPrimeCachedCommentsForStory extends CoralError {
+  constructor(tenantID: string, storyID: string) {
+    super({
+      code: ERROR_CODES.UNABLE_TO_PRIME_CACHED_COMMENTS_FOR_STORY,
       context: { pub: { tenantID } },
     });
   }

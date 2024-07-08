@@ -5,6 +5,7 @@ import {
   GQLDIGEST_FREQUENCY,
   GQLDSA_METHOD_OF_REDRESS,
   GQLFEATURE_FLAG,
+  GQLInPageNotificationReplyType,
   GQLMODERATION_MODE,
   GQLSettings,
   GQLSite,
@@ -142,6 +143,11 @@ export const settings = createFixture<GQLSettings>({
       method: GQLDSA_METHOD_OF_REDRESS.NONE,
     },
   },
+  inPageNotifications: {
+    enabled: true,
+    floatingBellIndicator: true,
+  },
+  newCommenter: { enabled: false },
 });
 
 export const site = createFixtures<GQLSite>([
@@ -236,6 +242,12 @@ export const baseUser = createFixture<GQLUser>({
     onStaffReplies: false,
     onFeatured: false,
     digestFrequency: GQLDIGEST_FREQUENCY.NONE,
+  },
+  inPageNotifications: {
+    onReply: { enabled: true, showReplies: GQLInPageNotificationReplyType.ALL },
+    onModeration: true,
+    onFeatured: true,
+    enabled: true,
   },
   ignoreable: true,
   profiles: [
@@ -801,6 +813,17 @@ export const commentFromModerator = denormalizeComment(
   )
 );
 
+export const commentFromNewUser = denormalizeComment(
+  createFixture<GQLComment>(
+    {
+      id: "comment-from-new-user",
+      author: { ...commenters[0], newCommenter: true },
+      body: "Hi I am new",
+    },
+    baseComment
+  )
+);
+
 export const commentsFromStaff = denormalizeComments(
   createFixtures<GQLComment>(
     [
@@ -812,19 +835,6 @@ export const commentsFromStaff = denormalizeComments(
       },
     ],
     baseComment
-  )
-);
-
-export const singleCommentStory = denormalizeStory(
-  createFixture<GQLStory>(
-    {
-      id: "story-1",
-      url: "http://localhost/stories/story-1",
-      comments: {
-        edges: [{ node: comments[0], cursor: comments[0].createdAt }],
-      },
-    },
-    baseStory
   )
 );
 
@@ -861,6 +871,20 @@ export const stories = denormalizeStories(
             {
               node: commentsFromStaff[0],
               cursor: commentsFromStaff[0].createdAt,
+            },
+            {
+              node: { ...comments[1], deleted: true },
+              cursor: comments[1].createdAt,
+            },
+            {
+              node: {
+                ...comments[2],
+                author: {
+                  ...comments[2].author,
+                  username: undefined,
+                },
+              },
+              cursor: comments[2].createdAt,
             },
           ],
         },
@@ -899,31 +923,6 @@ export const storyWithFeaturedComments = denormalizeStory(
           },
           {
             node: { ...comments[1], tags: [featuredTag] },
-            cursor: comments[1].createdAt,
-          },
-        ],
-        pageInfo: {
-          hasNextPage: false,
-        },
-      },
-    },
-    baseStory
-  )
-);
-
-export const storyWithDeletedComments = denormalizeStory(
-  createFixture<GQLStory>(
-    {
-      id: "story-with-deleted-comments",
-      url: "http://localhost/stories/story-with-deleted-comments",
-      comments: {
-        edges: [
-          {
-            node: { ...comments[0], deleted: true },
-            cursor: comments[0].createdAt,
-          },
-          {
-            node: { ...comments[1] },
             cursor: comments[1].createdAt,
           },
         ],

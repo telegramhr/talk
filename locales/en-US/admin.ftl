@@ -205,9 +205,6 @@ configure-moderationPhases-phaseNotFound = External moderation phase not found
 configure-moderationPhases-experimentalFeature =
   The custom moderation phases feature is currently in active development.
   Please <ContactUsLink>contact us with any feedback or requests</ContactUsLink>.
-configure-moderationPhases-dsaEnabled = 
-  You currently have DSA features enabled. External moderation is not
-  currently DSA compliant, and so is disabled.
 configure-moderationPhases-header-title = Moderation Phases
 configure-moderationPhases-description =
   Configure a external moderation phase to automate some moderation
@@ -434,8 +431,8 @@ configure-general-sitewideCommenting-messageExplanation =
 
 #### Embed Links
 configure-general-embedLinks-title = Embedded media
-configure-general-embedLinks-desc = Allow commenters to add a YouTube video, Tweet or GIF from GIPHY's library to the end of their comment
-configure-general-embedLinks-enableTwitterEmbeds = Allow Twitter embeds
+configure-general-embedLinks-desc = Allow commenters to add a YouTube video, X post or GIF from GIPHY's library to the end of their comment
+configure-general-embedLinks-enableTwitterEmbeds = Allow X post embeds
 configure-general-embedLinks-enableYouTubeEmbeds = Allow YouTube embeds
 configure-general-embedLinks-enableGiphyEmbeds = Allow GIFs from GIPHY
 configure-general-embedLinks-enableExternalEmbeds = Enable external media
@@ -514,6 +511,10 @@ configure-general-featuredBy-title = Featured by
 configure-general-featuredBy-enabled = Featured by enabled
 configure-general-featuredBy-explanation = Add moderator name to featured comment display
 
+configure-general-topCommenter-title = Top commenter badge
+configure-general-topCommenter-explanation = Add top commenter badge to commenters with featured comments in the last 10 days
+configure-general-topCommenter-enabled = Enable top commenter badges
+
 configure-general-flairBadge-header = Custom flair badges
 configure-general-flairBadge-description = Encourage user engagement and participation by adding custom flair
   badges for your site. Badges can be allocated as part of your <externalLink>JWT claim</externalLink>.
@@ -534,6 +535,15 @@ configure-general-flairBadge-table-flairURL = URL
 configure-general-flairBadge-table-preview = Preview
 configure-general-flairBadge-table-deleteButton = <icon></icon> Delete
 configure-general-flairBadge-table-empty = No custom flair added for this site
+
+#### In-page notifications
+configure-general-inPageNotifications-title = In-page notifications
+configure-general-inPageNotifications-explanation = Add notifications to Coral. When enabled, commenters can receive
+  notifications when they receive all replies, replies only from members
+  of your team, when a Pending comment is published. Commenters can
+  disable visual notification indicators in their Profile preferences. This will remove e-mail notifications.
+configure-general-inPageNotifications-enabled = In-page notifications enabled
+configure-general-inPageNotifications-floatingBellIndicator = Floating bell indicator
 
 #### Closed Stream Message
 configure-general-closedStreamMessage-title = Closed comment stream message
@@ -860,9 +870,13 @@ configure-moderation-newCommenters-approvedCommentsThreshold-description =
   not have to be premoderated
 configure-moderation-newCommenters-comments = comments
 
+#### Unmoderated counts
+configure-moderation-unmoderatedCounts-title = Unmoderated counts
+configure-moderation-unmoderatedCounts-enabled = Show the number of unmoderated comments in the queue
+
 #### Email domain
 configure-moderation-emailDomains-header = Email domain
-configure-moderation-emailDomains-description = Create rules to take action on accounts or comments based on the account holder's email address domain. Action only applies to newly created accounts.
+configure-moderation-emailDomains-description = Create rules to take action on accounts or comments based on the account holder's email address domain.
 configure-moderation-emailDomains-add = Add email domain
 configure-moderation-emailDomains-edit = Edit email domain
 configure-moderation-emailDomains-addDomain = <icon></icon> Add domain
@@ -880,6 +894,18 @@ configure-moderation-emailDomains-form-editDomain = Update
 configure-moderation-emailDomains-confirmDelete = Deleting this email domain will stop any new accounts created with it from being banned or always pre-moderated. Are you sure you want to continue?
 configure-moderation-emailDomains-form-description-add = Add a domain and select the action that should be taken when on every new account created using the specified domain.
 configure-moderation-emailDomains-form-description-edit = Update the domain or action that should be taken when on every new account using the specified domain.
+configure-moderation-emailDomains-exceptions-header = Exceptions
+configure-moderation-emailDomains-exceptions-helperText = These domains cannot be banned. Domains should be written without www, for example "gmail.com". Separate domains with a comma and a space.
+
+configure-moderation-emailDomains-showCurrent = Show current domain list
+configure-moderation-emailDomains-hideCurrent = Hide current domain list
+configure-moderation-emailDomains-filterByStatus = 
+  .aria-label = Filter by email domain status
+configuration-moderation-emailDomains-empty = There are no email domains configured.
+
+configure-moderation-emailDomains-allDomains = All domains
+configure-moderation-emailDomains-preMod = Pre-mod
+configure-moderation-emailDomains-banned = Banned
 
 #### Pre-moderate  Email Address Configuration
 
@@ -1030,7 +1056,7 @@ moderate-marker-preMod = Pre-mod
 moderate-marker-link = Link
 moderate-marker-bannedWord = Banned word
 moderate-marker-bio = Bio
-moderate-marker-illegal = Illegal content
+moderate-marker-illegal = Potentially illegal content
 moderate-marker-possibleBannedWord = Possible Banned Word
 moderate-marker-suspectWord = Suspect word
 moderate-marker-possibleSuspectWord = Possible Suspect Word
@@ -1053,8 +1079,10 @@ moderate-flagDetails-abusive = Abusive
 moderate-flagDetails-spam = Spam
 moderate-flagDetails-bio = Bio
 moderate-flagDetails-other = Other
-moderate-flagDetails-illegalContent = Illegal content
+moderate-flagDetails-illegalContent = Potentially illegal content
 moderate-flagDetails-viewDSAReport = View DSA Report
+
+moderate-card-flag-details-anonymousUser = Anonymous user
 
 moderate-flagDetails-toxicityScore = Toxicity Score
 moderate-toxicityLabel-likely = Likely <score></score>
@@ -1181,6 +1209,7 @@ moderate-user-drawer-account-history-system = <icon></icon> System
 moderate-user-drawer-account-history-suspension-ended = Suspension ended
 moderate-user-drawer-account-history-suspension-removed = Suspension removed
 moderate-user-drawer-account-history-banned = Banned
+moderate-user-drawer-account-history-account-domain-banned = Account domain banned
 moderate-user-drawer-account-history-ban-removed = Ban removed
 moderate-user-drawer-account-history-site-banned = Site banned
 moderate-user-drawer-account-history-site-ban-removed = Site ban removed
@@ -1194,6 +1223,8 @@ moderate-user-drawer-account-history-premod-removed = Removed pre-moderate
 
 moderate-user-drawer-account-history-modMessage-sent = User messaged
 moderate-user-drawer-account-history-modMessage-acknowledged = Message acknowledged at { $acknowledgedAt }
+
+moderate-user-drawer-newCommenter = New commenter
 
 moderate-user-drawer-suspension =
   Suspension, { $value } { $unit ->
@@ -1228,6 +1259,33 @@ moderate-user-drawer-suspension =
     *[other] unknown unit
   }
 
+moderate-user-drawer-deleteAccount-popover =
+  .description = A popover menu to delete a user's account
+moderate-user-drawer-deleteAccount-button =
+  .aria-label = Delete account
+moderate-user-drawer-deleteAccount-popover-confirm = Type in "{ $text }" to confirm
+moderate-user-drawer-deleteAccount-popover-title = Delete account
+moderate-user-drawer-deleteAccount-popover-username = Username
+moderate-user-drawer-deleteAccount-popover-header-description = Delete account will
+moderate-user-drawer-deleteAccount-popover-description-list-removeComments = Remove all comments written by this user from the database.
+moderate-user-drawer-deleteAccount-popover-description-list-deleteAll = Delete all record of this account. The 
+  user could then create a new account using the same email address. If you want to Ban this user instead and 
+  retain their history, press "CANCEL" and use the Status dropdown below the username.
+moderate-user-drawer-deleteAccount-popover-callout = This removes all records of this user
+moderate-user-drawer-deleteAccount-popover-timeframe = This will go into effect in 24 hours.
+moderate-user-drawer-deleteAccount-popover-cancelButton = Cancel
+moderate-user-drawer-deleteAccount-popover-deleteButton = Delete
+
+moderate-user-drawer-deleteAccount-scheduled-callout = User deletion activated
+moderate-user-drawer-deleteAccount-scheduled-timeframe = This will occur at { $deletionDate }.
+moderate-user-drawer-deleteAccount-scheduled-cancelDeletion = Cancel user deletion
+
+moderate-user-drawer-user-scheduled-deletion = User scheduled for deletion
+moderate-user-drawer-user-deletion-canceled = User deletion request canceled
+
+moderate-user-drawer-account-history-deletion-scheduled = Deletion scheduled for { $createdAt }
+moderate-user-drawer-account-history-canceled-at = Canceled at { $createdAt }
+moderate-user-drawer-account-history-updated-at = Updated at { $createdAt }
 
 moderate-user-drawer-recent-history-title = Recent comment history
 moderate-user-drawer-recent-history-calculated =
@@ -1390,7 +1448,9 @@ community-userStatus-removePremod = Remove pre-moderate
 
 community-banModal-allSites-title = Are you sure you want to ban <username></username>?
 community-banModal-banEmailDomain-title = Email domain ban
-community-banModal-banEmailDomain = Ban all new commenter accounts from { $domain }
+community-banModal-banEmailDomain = Ban all commenter accounts from { $domain }
+community-banModal-banEmailDomain-callOut = This will prevent any commenter from using this email domain
+community-banModal-banEmailDomain-confirmationText = Type in "{ $text }" to confirm
 community-banModal-specificSites-title = Are you sure you want to manage the ban status of <username></username>?
 community-banModal-noSites-title = Are you sure you want to unban <username></username>?
 community-banModal-allSites-consequence =
@@ -1608,6 +1668,10 @@ configure-general-reactions-sort-input =
   .placeholder = E.g. Most Respected
 configure-general-reactions-preview = Preview
 configure-general-reaction-sortMenu-sortBy = Sort by
+
+configure-general-newCommenter-title = New commenter badge
+configure-general-newCommenter-explanation = Add <icon></icon> badge to commenters who created their accounts in the past seven days.
+configure-general-newCommenter-enabled = Enable new commenter badges
 
 configure-general-badges-title = Member badges
 configure-general-badges-explanation =
@@ -1895,8 +1959,8 @@ reports-singleReport-history = History
 reports-singleReport-history-reportSubmitted = Illegal content report submitted
 reports-singleReport-history-addedNote = { $username } added a note
 reports-singleReport-history-deleteNoteButton = <icon></icon> Delete
-reports-singleReport-history-madeDecision-illegal = { $username } made a decision that this report contains illegal content
-reports-singleReport-history-madeDecision-legal = { $username } made a decision that this report does not contain illegal content
+reports-singleReport-history-madeDecision-illegal = { $username } made a decision that this report contains potentially illegal content
+reports-singleReport-history-madeDecision-legal = { $username } made a decision that this report does not contain potentially illegal content
 reports-singleReport-history-legalGrounds = Legal grounds: { $legalGrounds }
 reports-singleReport-history-explanation = Explanation: { $explanation }
 reports-singleReport-history-changedStatus = { $username } changed status to { $status }
@@ -1909,7 +1973,7 @@ reports-singleReport-decisionLabel = Decision
 reports-singleReport-decision-legalGrounds = Legal grounds
 reports-singleReport-decision-explanation = Detailed explanation
 reports-singleReport-makeDecisionButton = <icon></icon> Decision
-reports-singleReport-decision-doesItContain = Does this comment contain illegal content?
+reports-singleReport-decision-doesItContain = Does this comment contain potentially illegal content?
 reports-singleReport-decision-doesItContain-yes = Yes
 reports-singleReport-decision-doesItContain-no = No
 
@@ -1927,7 +1991,7 @@ reports-changeStatusModal-dontUpdateButton = No
 reports-changeStatusModal-header = Update status?
 
 reports-decisionModal-header = Report decision
-reports-decisionModal-prompt = Does this comment appear to contain illegal content?
+reports-decisionModal-prompt = Does this comment appear to contain potentially illegal content?
 reports-decisionModal-yes = Yes
 reports-decisionModal-no = No
 reports-decisionModal-submit = Submit
@@ -1940,6 +2004,9 @@ reports-decisionModal-detailedExplanationTextarea =
 
 reports-relatedReports-label = Related reports
 reports-relatedReports-reportIDLabel = Report ID
+
+reports-anonymousUser = Anonymous user
+reports-username-not-available = Username not available
 
 # Control panel
 

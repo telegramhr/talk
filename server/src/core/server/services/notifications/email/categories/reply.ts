@@ -7,7 +7,7 @@ import { mapErrorsToNull } from "coral-server/helpers/dataloader";
 import { hasPublishedStatus } from "coral-server/models/comment";
 import { PUBLISHED_STATUSES } from "coral-server/models/comment/constants";
 import { getStoryTitle, getURLWithCommentID } from "coral-server/models/story";
-import { IgnoredUser } from "coral-server/models/user";
+import { IgnoredUser, User } from "coral-server/models/user";
 
 import { NotificationCategory } from "./category";
 
@@ -18,6 +18,11 @@ type Payloads =
 export const reply: NotificationCategory<Payloads> = {
   name: "reply",
   process: async (ctx, input) => {
+    // Don't send email notification if in-page notifications enabled
+    if (ctx.tenant?.inPageNotifications?.enabled) {
+      return null;
+    }
+
     const comment = await ctx.comments.load(input.data.commentID);
     if (!comment || !hasPublishedStatus(comment)) {
       return null;
@@ -45,7 +50,7 @@ export const reply: NotificationCategory<Payloads> = {
     }
 
     // Get the parent comment's author.
-    const [author, parentAuthor] = await ctx.users
+    const [author, parentAuthor]: Array<Readonly<User> | null> = await ctx.users
       .loadMany([comment.authorID, parent.authorID])
       .then(mapErrorsToNull);
     if (!author || !parentAuthor) {

@@ -2,7 +2,11 @@ import { ERROR_CODES } from "coral-common/common/lib/errors";
 import { ADDITIONAL_DETAILS_MAX_LENGTH } from "coral-common/common/lib/helpers/validate";
 import GraphContext from "coral-server/graph/context";
 import { mapFieldsetToErrorCodes } from "coral-server/graph/errors";
-import { hasTag } from "coral-server/models/comment";
+import {
+  hasTag,
+  retrieveLatestFeaturedCommentForAuthor,
+} from "coral-server/models/comment";
+import { updateLastFeaturedDate } from "coral-server/models/user";
 import { addTag, removeTag } from "coral-server/services/comments";
 import {
   createDontAgree,
@@ -244,7 +248,7 @@ export const Comments = (ctx: GraphContext) => ({
     // Validate that this user is allowed to moderate this comment
     await validateUserModerationScopes(ctx, ctx.user!, { commentID });
 
-    const comment = await addTag(
+    const { comment, alreadyFeatured } = await addTag(
       ctx.mongo,
       ctx.tenant,
       commentID,
@@ -253,6 +257,11 @@ export const Comments = (ctx: GraphContext) => ({
       GQLTAG.FEATURED,
       ctx.now
     );
+
+    // The comment is already featured; we don't need to feature again
+    if (alreadyFeatured) {
+      return comment;
+    }
 
     if (comment.status !== GQLCOMMENT_STATUS.APPROVED) {
       await approveComment(
@@ -267,7 +276,9 @@ export const Comments = (ctx: GraphContext) => ({
         commentID,
         commentRevisionID,
         ctx.user!.id,
-        ctx.now
+        ctx.now,
+        undefined,
+        false
       );
     }
 
@@ -287,6 +298,19 @@ export const Comments = (ctx: GraphContext) => ({
     // Publish that the comment was featured.
     await publishCommentFeatured(ctx.broker, comment);
 
+    // If the Top commenter feature is enabled, we need to update lastFeaturedDate
+    if (ctx.tenant?.topCommenter) {
+      const updatedUser = await updateLastFeaturedDate(
+        ctx.mongo,
+        ctx.tenant.id,
+        comment.authorID!
+      );
+      const cacheAvailable = await ctx.cache.available(ctx.tenant.id);
+      if (cacheAvailable) {
+        await ctx.cache.users.update(updatedUser);
+      }
+    }
+
     await ctx.notifications.create(ctx.tenant.id, ctx.tenant.locale, {
       targetUserID: comment.authorID!,
       comment,
@@ -302,12 +326,17 @@ export const Comments = (ctx: GraphContext) => ({
     // Validate that this user is allowed to moderate this comment
     await validateUserModerationScopes(ctx, ctx.user!, { commentID });
 
-    const comment = await removeTag(
+    const { comment, alreadyUnfeatured } = await removeTag(
       ctx.mongo,
       ctx.tenant,
       commentID,
       GQLTAG.FEATURED
     );
+
+    // The comment is already unfeatured; we don't need to unfeature again
+    if (alreadyUnfeatured) {
+      return comment;
+    }
 
     // If the tag is sucessfully removed (the tag is
     // no longer present on the comment) then we can
@@ -326,6 +355,33 @@ export const Comments = (ctx: GraphContext) => ({
         [...comment.tags, { type: GQLTAG.FEATURED, createdAt: new Date() }],
         comment.tags
       );
+    }
+
+    // If the Top commenter feature is enabled, we need to update lastFeaturedDate
+    if (ctx.tenant?.topCommenter) {
+      // get latest featured comment if any
+      const latestFeatured = await retrieveLatestFeaturedCommentForAuthor(
+        ctx.mongo,
+        ctx.tenant.id,
+        comment.authorID!
+      );
+
+      // if a latest featured comment, update latestFeaturedDate for user to when it was featured
+      // otherwise just set to null
+      const latestFeaturedDate =
+        latestFeatured.length > 0 ? latestFeatured[0].createdAt : null;
+
+      const updatedUser = await updateLastFeaturedDate(
+        ctx.mongo,
+        ctx.tenant.id,
+        comment.authorID!,
+        latestFeaturedDate
+      );
+
+      const cacheAvailable = await ctx.cache.available(ctx.tenant.id);
+      if (cacheAvailable) {
+        await ctx.cache.users.update(updatedUser);
+      }
     }
 
     return comment;

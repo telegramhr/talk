@@ -21,12 +21,15 @@ import FeaturedByConfig from "./FeaturedByConfig";
 import FlairBadgeConfigContainer from "./FlairBadgeConfigContainer";
 import FlattenRepliesConfig from "./FlattenRepliesConfig";
 import GuidelinesConfig from "./GuidelinesConfig";
+import InPageNotificationsConfig from "./InPageNotificationsConfig";
 import LocaleConfig from "./LocaleConfig";
 import MediaLinksConfig from "./MediaLinksConfig";
 import MemberBioConfig from "./MemberBioConfig";
+import NewCommenterConfig from "./NewCommenterConfig";
 import ReactionConfigContainer from "./ReactionConfigContainer";
 import RTEConfig from "./RTEConfig";
 import SitewideCommentingConfig from "./SitewideCommentingConfig";
+import TopCommenterConfig from "./TopCommenterConfig";
 
 import styles from "./GeneralConfigContainer.css";
 
@@ -49,6 +52,7 @@ const GeneralConfigContainer: React.FunctionComponent<Props> = ({
     >
       <LocaleConfig disabled={submitting} />
       <DSAConfigContainer disabled={submitting} settings={settings} />
+      <InPageNotificationsConfig disabled={submitting} />
       <FlattenRepliesConfig disabled={submitting} />
       <SitewideCommentingConfig disabled={submitting} />
       <AnnouncementConfigContainer disabled={submitting} settings={settings} />
@@ -61,6 +65,8 @@ const GeneralConfigContainer: React.FunctionComponent<Props> = ({
       <ReactionConfigContainer disabled={submitting} settings={settings} />
       <FeaturedByConfig disabled={submitting} />
       <BadgeConfig disabled={submitting} />
+      <NewCommenterConfig disabled={submitting} />
+      <TopCommenterConfig disabled={submitting} />
       <FlairBadgeConfigContainer disabled={submitting} settings={settings} />
       <MemberBioConfig disabled={submitting} />
       <MediaLinksConfig disabled={submitting} />
@@ -73,6 +79,7 @@ const enhanced = withFragmentContainer<Props>({
     fragment GeneralConfigContainer_settings on Settings {
       ...AnnouncementConfigContainer_settings
       ...FlattenRepliesConfig_formValues @relay(mask: false)
+      ...InPageNotificationsConfig_formValues @relay(mask: false)
       ...LocaleConfig_formValues @relay(mask: false)
       ...DSAConfigContainer_formValues @relay(mask: false)
       ...DSAConfigContainer_settings
@@ -85,6 +92,8 @@ const enhanced = withFragmentContainer<Props>({
       ...FeaturedByConfig_formValues @relay(mask: false)
       ...ReactionConfig_formValues @relay(mask: false)
       ...BadgeConfig_formValues @relay(mask: false)
+      ...NewCommenterConfig_formValues @relay(mask: false)
+      ...TopCommenterConfig_formValues @relay(mask: false)
       ...FlairBadgeConfigContainer_formValues @relay(mask: false)
       ...FlairBadgeConfigContainer_settings
       ...RTEConfig_formValues @relay(mask: false)
